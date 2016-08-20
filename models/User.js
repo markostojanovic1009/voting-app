@@ -140,6 +140,24 @@ const User = {
                 });
         });
 
+    },
+
+    getUser(id) {
+        return new Promise((resolve, reject) => {
+
+            knex.select("*").from('users').where({id})
+                .then(([user]) => {
+                    if(!user)
+                        throw { type: 'INVALID_ARGUMENTS', msg: 'No user found.' };
+                    hideFields(user);
+                    resolve(user);
+                }).catch((err) => {
+                    if(err.type === 'INVALID_ARGUMENTS')
+                        reject({msg: err.msg})
+                    else
+                        reject(genericMessage);
+                });
+        });
     }
 
 };

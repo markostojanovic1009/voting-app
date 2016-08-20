@@ -22,7 +22,7 @@ require('babel-core/register');
 require('babel-polyfill');
 
 // Models
-var User = require('./models/User');
+import User from './models/User';
 
 // Controllers
 var userController = require('./controllers/user');
@@ -57,11 +57,12 @@ app.use(function(req, res, next) {
 
   if (req.isAuthenticated()) {
     var payload = req.isAuthenticated();
-    new User({ id: payload.sub })
-      .fetch()
+    User.getUser(payload.sub)
       .then(function(user) {
         req.user = user;
         next();
+      }).catch((err) => {
+          next();
       });
   } else {
     next();
