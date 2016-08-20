@@ -138,9 +138,29 @@ describe('User Model', () => {
             });
 
         });
-
-
-
     });
+
+    describe('changePassword', () => {
+
+        it('should change a password', () => {
+
+            return expect(
+                createUser().then(() => {
+                    return User.changePassword(1, genericUser.password, 'newpassword');
+                })
+            ).to.be.fulfilled;
+
+        });
+
+        it('should return an error if wrong original password is sent', () => {
+
+            return expect(
+                createUser().then(() => {
+                    return User.changePassword(1, 'wrongpassword', 'newpassword');
+                })
+            ).to.be.rejected.and.eventually.deep.equal({msg: 'Wrong password.'});
+
+        })
+    })
 
 });

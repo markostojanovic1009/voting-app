@@ -92,6 +92,34 @@ const User = {
                 });
 
         });
+    },
+
+    changePassword(id, oldPassword, newPassword) {
+        return new Promise((resolve, reject) => {
+
+            knex.select('password').from('users').where('id', id)
+                .then(([user]) => {
+                    if(!bcrypt.compareSync(oldPassword, user.password)) {
+                        throw {
+                            type: 'WRONG_PASSWORD',
+                            msg: 'Wrong password.'
+                        }
+                    }
+                    return knex('users').where('id', id).update({
+                        password: bcrypt.hashSync(newPassword, bcrypt.genSaltSync(10))
+                    });
+                })
+                .then(() => {
+                    resolve();
+                })
+                .catch((err) => {
+                    if(err.type === 'WRONG_PASSWORD')
+                        reject({msg: err.msg});
+                    else
+                        reject(genericMessage);
+                });
+
+        })
     }
 
 };
