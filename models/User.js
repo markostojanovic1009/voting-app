@@ -1,9 +1,13 @@
 const knex = require('../config/database');
 const bcrypt = require('bcryptjs');
 
+/*
+ * Generic message to display for unexpected server errors.
+ */
 const genericMessage = {
     msg: 'An error occurred. Please try again later.'
 };
+
 // Hides password, passwordResetToken, passwordResetExpires
 // and timestamps(created_at and updated_at).
 function hideFields(user) {
@@ -28,7 +32,8 @@ const User = {
                         msg: 'Invalid email or password.'
                     }
                 } else {
-                    resolve(hideFields(user));
+                    hideFields(user)
+                    resolve(user);
                 }
             }).catch((error) => {
                 const err = error.type === 'INVALID_INFO' ? {msg: error.msg} : genericMessage;

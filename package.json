@@ -11,6 +11,7 @@
     "start": "node server.js",
     "test": "npm run test:client && npm run test:server",
     "test:client": "mocha test/client --recursive --compilers js:babel-register",
+    "test:controllers": "NODE_ENV=test mocha test/server/controllers.test.js --compilers js:babel-register",
     "test:models": "NODE_ENV=test mocha test/server/models.test.js --compilers js:babel-register",
     "test:server": "mocha test/server --recursive --compilers js:babel-register",
     "watch": "gulp"
@@ -76,7 +77,8 @@
     "redux-mock-store": "^1.0.2",
     "sinon": "^1.17.3",
     "sinon-chai": "^2.8.0",
-    "supertest": "^1.2.0"
+    "supertest": "^1.2.0",
+    "supertest-as-promised": "^3.4.1"
   },
   "engines": {
     "node": "6.1.0"

@@ -1,13 +1,13 @@
 const knex = require('../../config/database');
 const chai = require('chai');
-const bcrypt = require('bcryptjs');
 const expect = chai.expect;
-
-import User from '../../models/User';
+const bcrypt = require('bcryptjs');
+const request = require('supertest-as-promised');
+const server = require('../../server');
 
 chai.use(require('chai-as-promised'));
 
-describe('User Model', () => {
+describe('User controller', () => {
 
     beforeEach((done) => {
         knex.migrate.latest()
@@ -51,42 +51,49 @@ describe('User Model', () => {
             .insert({ ...genericUser, password: bcrypt.hashSync(genericUser.password, bcrypt.genSaltSync(10))});
     };
 
-    describe('verifyUser', () => {
+    describe('POST /login', () => {
 
-        it('should be fulfill and return a user when valid email and password are passed', () => {
+        it('should return a token and user when passed valid info', () => {
+            return expect (
+                createUser().then(() => {
+                    return request(server)
+                        .post('/login')
+                        .send({email: genericUser.email, password: genericUser.password})
+                }).then((res) => {
+                    return res.body;
+                })
+            ).to.eventually.have.keys('token', 'user');
+        });
 
-           /*
-            * Add id:1 and deletes the password field so that it matches the
-            * expected output format.
-            */
-            const expected = Object.assign({}, genericUser, {id: 1});
-            delete expected.password;
+        it('should return a message and status code 401 when passed wrong email', () => {
 
             return expect(
                 createUser().then(() => {
-                    return User.verifyUser(genericUser.email, genericUser.password);
+                    return request(server)
+                        .post('/login')
+                        .send({email: 'wrongemail@email.com', password: genericUser.password})
+                        .expect(401)
+                }).then((res) => {
+                    return res.body;
                 })
-            ).to.eventually.deep.equal(expected);
+            ).to.eventually.deep.equal({msg: 'Invalid email or password.'});
 
         });
 
-        it('should be rejected with appropriate message when wrong email is sent', () => {
+        it('should return a message and status code 401 when passed wrong password', () => {
 
             return expect(
                 createUser().then(() => {
-                    return User.verifyUser('wrongEmail', genericUser.password);
+                    return request(server)
+                        .post('/login')
+                        .send({email: genericUser.email, password:  'wrongpassword'})
+                        .expect(401)
+                }).then((res) => {
+                    return res.body;
                 })
-            ).to.be.rejected.eventually.deep.equal({msg: 'Invalid email or password.'});
+            ).to.eventually.deep.equal({msg: 'Invalid email or password.'});
 
         });
 
-        it('should be rejected with appropriate message when wrong password is sent', () => {
-            return expect(
-                createUser().then(() => {
-                    return User.verifyUser(genericUser.email, 'wrongPassword');
-                })
-            ).to.be.rejected.eventually.deep.equal({msg: 'Invalid email or password.'});
-        })
-
-    })
+    });
 });

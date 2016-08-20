@@ -5,7 +5,7 @@ var jwt = require('jsonwebtoken');
 var moment = require('moment');
 var request = require('request');
 var qs = require('querystring');
-var User = require('../models/User');
+import User from '../models/User';
 
 function generateToken(user) {
   var payload = {
@@ -27,38 +27,28 @@ exports.ensureAuthenticated = function(req, res, next) {
     res.status(401).send({ msg: 'Unauthorized' });
   }
 };
-  /**
-   * POST /login
-   * Sign in with email and password
-   */
-  exports.loginPost = function(req, res, next) {
-    req.assert('email', 'Email is not valid').isEmail();
-    req.assert('email', 'Email cannot be blank').notEmpty();
+/**
+ * POST /login
+ * Sign in with email and password
+ */
+exports.loginPost = function(req, res, next) {
+    req.assert('email', 'Email is not valid.').isEmail();
+    req.assert('email', 'Email cannot be blank.').notEmpty();
     req.assert('password', 'Password cannot be blank').notEmpty();
     req.sanitize('email').normalizeEmail({ remove_dots: false });
 
     var errors = req.validationErrors();
 
     if (errors) {
-      return res.status(400).send(errors);
+        return res.status(400).send(errors);
     }
 
-    new User({ email: req.body.email })
-      .fetch()
-      .then(function(user) {
-        if (!user) {
-          return res.status(401).send({ msg: 'The email address ' + req.body.email + ' is not associated with any account. ' +
-          'Double-check your email address and try again.'
-          });
-        }
-        user.comparePassword(req.body.password, function(err, isMatch) {
-          if (!isMatch) {
-            return res.status(401).send({ msg: 'Invalid email or password' });
-          }
-          res.send({ token: generateToken(user), user: user.toJSON() });
-        });
-      });
-  };
+    User.verifyUser(req.body.email, req.body.password).then((user) => {
+        res.status(200).send({ token: generateToken(user), user });
+    }).catch((error) => {
+        res.status(401).send(error);
+    });
+};
 
 /**
  * POST /signup
