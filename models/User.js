@@ -124,17 +124,20 @@ const User = {
 
     updateUser(id, newUserInfo) {
         return new Promise((resolve, reject) => {
-            knex('users').where('id', id).update(newUserInfo).then(() => {
-                resolve();
-            }).catch((err) => {
-                if (err.code === 'ER_DUP_ENTRY' || err.code === '23505') {
-                    reject({
-                        msg: 'The email address you have entered is already associated with another account.'
-                    });
-                } else {
-                    reject(genericMessage);
-                }
-            });
+            knex('users').where('id', id).update(newUserInfo)
+                .returning(['id', 'email', 'name', 'gender', 'location', 'website'])
+                .then(([user]) => {
+                    resolve(user);
+                })
+                .catch((err) => {
+                    if (err.code === 'ER_DUP_ENTRY' || err.code === '23505') {
+                        reject({
+                            msg: 'The email address you have entered is already associated with another account.'
+                        });
+                    } else {
+                        reject(genericMessage);
+                    }
+                });
         });
 
     }
