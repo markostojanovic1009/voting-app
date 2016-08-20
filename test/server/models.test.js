@@ -161,6 +161,49 @@ describe('User Model', () => {
             ).to.be.rejected.and.eventually.deep.equal({msg: 'Wrong password.'});
 
         })
+    });
+
+    describe('updateUser', () => {
+
+        it('should update user info', () => {
+            const updatedUserInfo = {
+                email: 'newemail@email.com',
+                name: 'Alexandra',
+                website: 'http://someotherwebsite.com',
+                gender: 'Female',
+                location: 'New York City, NY, USA'
+            };
+            return expect(
+                createUser().then(() => {
+                    return User.updateUser(1, updatedUserInfo);
+                }).then(() => {
+                    return knex.select('email', 'name', 'website', 'gender', 'location').from('users');
+                }).then(([user]) => {
+                    return user;
+                })
+            ).to.eventually.deep.equal(updatedUserInfo);
+        });
+
+        it('should return an error if email is already in use', () => {
+
+            const updatedUserInfo = {
+                email: 'newemail@email.com',
+                name: 'Alexandra',
+                website: 'http://someotherwebsite.com',
+                gender: 'Female',
+                location: 'New York City, NY, USA'
+            };
+            return expect(
+                createUser().then(() => {
+                    return knex('users').insert({email: 'updateemail@email.com', password: 'passsword', name: 'John'});
+                }).then(() => {
+                    return User.updateUser(1, {...updatedUserInfo, email: 'updateemail@email.com' });
+                })
+            ).to.be.rejected.and.eventually.deep.equal({
+                msg: "The email address you have entered is already associated with another account."
+            });
+
+        });
     })
 
 });
