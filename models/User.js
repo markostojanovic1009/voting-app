@@ -158,6 +158,16 @@ const User = {
                         reject(genericMessage);
                 });
         });
+    },
+
+    deleteUser(id) {
+        return new Promise((resolve, reject) => {
+            knex('users').where('id', id).del().then(() => {
+                resolve()
+            }).catch((error) => {
+                reject(genericMessage);
+            });
+        });
     }
 
 };

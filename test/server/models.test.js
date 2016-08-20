@@ -204,6 +204,22 @@ describe('User Model', () => {
             });
 
         });
-    })
+    });
+
+    describe('deleteUser', () => {
+
+        it('should delete a user successfully', () => {
+
+            return expect(
+                createUser().then(() => {
+                    return User.deleteUser(1);
+                }).then(() => {
+                    return knex.select('*').from('users');
+                })
+            ).to.eventually.deep.equal([]);
+
+        })
+
+    });
 
 });
