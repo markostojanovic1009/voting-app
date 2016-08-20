@@ -54,31 +54,25 @@ exports.loginPost = function(req, res, next) {
  * POST /signup
  */
 exports.signupPost = function(req, res, next) {
-  req.assert('name', 'Name cannot be blank').notEmpty();
-  req.assert('email', 'Email is not valid').isEmail();
-  req.assert('email', 'Email cannot be blank').notEmpty();
-  req.assert('password', 'Password must be at least 4 characters long').len(4);
+  req.assert('name', 'Name cannot be empty.').notEmpty();
+  req.assert('email', 'Email is not valid.').isEmail();
+  req.assert('email', 'Email cannot be empty.').notEmpty();
+  req.assert('password', 'Password must be at least 4 characters long.').len(4);
   req.sanitize('email').normalizeEmail({ remove_dots: false });
 
   var errors = req.validationErrors();
 
   if (errors) {
-    return res.status(400).send(errors);
+    return res.status(400).send(errors.map((error) => {
+        return { msg: error.msg };
+    }));
   }
 
-  new User({
-    name: req.body.name,
-    email: req.body.email,
-    password: req.body.password
-  }).save()
-    .then(function(user) {
-        res.send({ token: generateToken(user), user: user });
-    })
-    .catch(function(err) {
-      if (err.code === 'ER_DUP_ENTRY' || err.code === '23505') {
-        return res.status(400).send({ msg: 'The email address you have entered is already associated with another account.' });
-      }
-    });
+  User.createUser(req.body.email, req.body.password, req.body.name).then((user) => {
+      res.send({token: generateToken(user), user})
+  }).catch((error) => {
+      res.status(400).send(error);
+  });
 };
 
 

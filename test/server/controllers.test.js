@@ -96,4 +96,57 @@ describe('User controller', () => {
         });
 
     });
+
+    describe('POST /signup', () => {
+
+        it('should create a new user', () => {
+
+            return expect(
+                request(server)
+                    .post('/signup')
+                    .send({email: genericUser.email, password: genericUser.password, name: genericUser.name})
+                    .then((res) => {
+                        return knex.select('email', 'name').from('users').where('email', genericUser.email);
+                    })
+                    .then(([user]) => {
+                        return user;
+                    })
+            ).to.eventually.deep.equal({email: genericUser.email, name: genericUser.name});
+
+        });
+
+        it('should return an error any of the parameters are not empty or not valid', () => {
+
+            return expect(
+                request(server)
+                    .post('/signup')
+                    .send({email: 'jld.com', password: 'abc', name: ''})
+                    .expect(400)
+                    .then((res) => {
+                        return res.body;
+                    })
+            ).to.eventually.deep.equal([
+                { msg: "Name cannot be empty." },
+                { msg: "Email is not valid." },
+                { msg: "Password must be at least 4 characters long." }]);
+
+        });
+
+        it('should return an error we try to use the same email twice', () => {
+
+            return expect(
+                createUser().then(() => {
+                    return request(server)
+                        .post('/signup')
+                        .send(genericUser)
+                        .expect(400)
+                }).then((res) => {
+                    return res.body;
+                })
+            ).to.eventually.deep.equal({
+                msg: 'The email address you have entered is already associated with another account.'
+            });
+
+        });
+    });
 });
