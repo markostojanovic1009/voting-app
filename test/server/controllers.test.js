@@ -4,6 +4,8 @@ const expect = chai.expect;
 const bcrypt = require('bcryptjs');
 const request = require('supertest-as-promised');
 const server = require('../../server');
+const moment = require('moment');
+const jwt = require('jsonwebtoken');
 
 chai.use(require('chai-as-promised'));
 
@@ -51,6 +53,22 @@ describe('User controller', () => {
             .insert({ ...genericUser, password: bcrypt.hashSync(genericUser.password, bcrypt.genSaltSync(10))});
     };
 
+    function generateToken(userId) {
+        var payload = {
+            iss: 'my.domain.com',
+            sub: userId,
+            iat: moment().unix(),
+            exp: moment().add(7, 'days').unix()
+        };
+        return jwt.sign(payload, process.env.TOKEN_SECRET);
+    }
+
+    const createAndLoginUser = () => {
+        return createUser().returning('id').then((id) => {
+            return generateToken(parseInt(id));
+        })
+    };
+
     describe('POST /login', () => {
 
         it('should return a token and user when passed valid info', () => {
@@ -65,7 +83,7 @@ describe('User controller', () => {
             ).to.eventually.have.keys('token', 'user');
         });
 
-        it('should return a message and status code 401 when passed wrong email', () => {
+        it('should return a message when passed wrong email', () => {
 
             return expect(
                 createUser().then(() => {
@@ -80,7 +98,7 @@ describe('User controller', () => {
 
         });
 
-        it('should return a message and status code 401 when passed wrong password', () => {
+        it('should return a message when passed wrong password', () => {
 
             return expect(
                 createUser().then(() => {
@@ -128,7 +146,7 @@ describe('User controller', () => {
             ).to.eventually.deep.equal([
                 { msg: "Name cannot be empty." },
                 { msg: "Email is not valid." },
-                { msg: "Password must be at least 4 characters long." }]);
+                { msg: "Password must be at least 8 characters long." }]);
 
         });
 
@@ -149,4 +167,54 @@ describe('User controller', () => {
 
         });
     });
+
+    describe('PUT /account', () => {
+
+        function putRequest(body) {
+            return createAndLoginUser().then((token) => {
+                return request(server)
+                    .put('/account')
+                    .set('Authorization', `Bearer ${token}`)
+                    .send(body)
+            }).then((res) => {
+                return res.body;
+            })
+        }
+
+        it('should update the password correctly', () => {
+            return expect(
+                putRequest({old_password: genericUser.password, password: 'newpassword', confirm: 'newpassword'})
+            ).to.eventually.deep.equal({msg: 'Your password has been changed.'});
+        });
+
+        it('should update the rest of the parameters correctly', () => {
+            let updatedUser = Object.assign({}, genericUser, {id: 1, email: 'johndoe@email.com'});
+            delete updatedUser.password;
+            delete updatedUser.facebook;
+            delete updatedUser.twitter;
+            delete updatedUser.google;
+            delete updatedUser.github;
+            delete updatedUser.picture;
+            return expect(
+                putRequest({email: updatedUser.email})
+            ).to.eventually.deep.equal({
+                msg: 'Your profile information has been updated.',
+                user: updatedUser
+            });
+        });
+
+        it('should return an error if the user tries to change the password without valid original password', () => {
+
+            return expect(
+                putRequest({old_password: 'wrongpassword', password: 'newpassword', confirm: 'newpassword'})
+            ).to.eventually.deep.equal({msg: 'Wrong password.'});
+
+        });
+
+        it('should return an error if password and confirm fields do not match', () => {
+           return expect(
+               putRequest({old_password: genericUser.password, password: 'password1', confirm: 'wrongconfirm'})
+           ).to.eventually.deep.equal([{msg: 'Passwords must match.'}]);
+        });
+    })
 });
