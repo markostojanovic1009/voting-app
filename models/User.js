@@ -16,29 +16,81 @@ function hideFields(user) {
     delete user.password_reset_expires;
     delete user.created_at;
     delete user.updated_at;
-    return user;
 }
 
+
+/**
+ * User Model Schema:
+ * - id PRIMARY KEY SERIAL,
+ * - email VARCHAR(255) UNIQUE,
+ * - password VARCHAR(255) - Hashed and Salted
+ * - password_reset_token VARCHAR(255) - Sent to user's email when they request a password reset, otherwise NULL.
+ * - password_reset_expires DATETIME,
+ * - gender VARCHAR(255) - Male or Female,
+ * - location VARCHAR(255),
+ * - website VARCHAR(255) - User's personal website,
+ * - picture VARCHAR(255) - Link to user's profile picture,
+ * - facebook VARCHAR(255) - Link to user's facebook if linked,
+ * - twitter VARCHAR(255) - Link to user's twitter if linked,
+ * - google VARCHAR(255) - Link to user's google+ if linked,
+ * - github VARCHAR(255) - Link to user's github if linked,
+ * - created_at TIMESTAMPZ,
+ * - updated_at TIMESTAMPZ.
+ */
 const User = {
 
     verifyUser(email, password) {
         return new Promise((resolve, reject)=> {
 
-            knex.select("*").from('users').where({email}).then(([user]) => {
+            knex.select("*").from('users').where({email})
+                .then(([user]) => {
 
-                if (!user || !bcrypt.compareSync(password, user.password)) {
-                    throw {
-                        type: 'INVALID_INFO',
-                        msg: 'Invalid email or password.'
+                    if (!user || !bcrypt.compareSync(password, user.password)) {
+                        throw {
+                            type: 'INVALID_INFO',
+                            msg: 'Invalid email or password.'
+                        }
+                    } else {
+                        hideFields(user);
+                        resolve(user);
                     }
-                } else {
-                    hideFields(user)
+
+                }).catch((error) => {
+
+                    const err = error.type === 'INVALID_INFO' ? {msg: error.msg} : genericMessage;
+                    reject(err);
+
+                });
+        });
+    },
+
+    createUser(email, password, name) {
+        return new Promise((resolve, reject) => {
+
+            if(!email)
+                reject({msg: 'Email cannot be empty.'});
+            if(!password)
+                reject({msg: 'Password cannot be empty.'});
+            if(!name)
+                reject({msg: 'Name cannot be empty.'});
+
+            knex('users')
+                .returning(['id', 'name', 'email', 'gender', 'location', 'website',
+                    'picture', 'facebook', 'twitter', 'google', 'github'])
+                .insert({email, name, password: bcrypt.hashSync(password, bcrypt.genSaltSync(10))})
+                .then(([user]) =>{
                     resolve(user);
-                }
-            }).catch((error) => {
-                const err = error.type === 'INVALID_INFO' ? {msg: error.msg} : genericMessage;
-                reject(err);
-            });
+                })
+                .catch((err) => {
+                    let error;
+                    if(err.code === 'ER_DUP_ENTRY' || err.code === '23505') {
+                        error = { msg: 'The email address you have entered is already associated with another account.' };
+                    } else {
+                        error = genericMessage;
+                    }
+                    reject(error);
+                });
+
         });
     }
 

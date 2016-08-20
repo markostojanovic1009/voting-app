@@ -56,7 +56,7 @@ describe('User Model', () => {
         it('should be fulfill and return a user when valid email and password are passed', () => {
 
            /*
-            * Add id:1 and deletes the password field so that it matches the
+            * Adds id:1 and deletes the password field so that it matches the
             * expected output format.
             */
             const expected = Object.assign({}, genericUser, {id: 1});
@@ -88,5 +88,59 @@ describe('User Model', () => {
             ).to.be.rejected.eventually.deep.equal({msg: 'Invalid email or password.'});
         })
 
-    })
+    });
+
+    describe('createUser', () => {
+
+        it('should create a new user when passed valid info', () => {
+            const newUser = {
+                email: 'john@email.com',
+                password: 'password',
+                name: 'John Doe'
+            };
+            return expect(
+                User.createUser(newUser.email, newUser.password, newUser.name)
+                    .then((user) => {
+                        return user;
+                    })
+            ).to.eventually.deep.equal({
+                email: newUser.email,
+                name: newUser.name,
+                id: 1,
+                gender: null,
+                picture: null,
+                location: null,
+                website: null,
+                facebook: null,
+                google: null,
+                twitter: null,
+                github: null
+            });
+        });
+
+        it('should return an error if email/password/name is empty', () => {
+            /*
+             * Testing for both password and name would be exactly the same.
+             */
+            return expect (
+                User.createUser('', null, '')
+            ).to.be.rejected.and.eventually.deep.equal({msg: 'Email cannot be empty.'});
+        });
+
+        it('should return an error if we try to enter a duplicate email', () => {
+
+            return expect(
+                createUser().then(() => {
+                   return User.createUser(genericUser.email, genericUser.password, genericUser.name);
+                })
+            ).to.be.rejected.and.eventually.deep.equal({
+                msg: 'The email address you have entered is already associated with another account.'
+            });
+
+        });
+
+
+
+    });
+
 });
