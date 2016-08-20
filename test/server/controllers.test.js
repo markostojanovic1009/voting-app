@@ -170,6 +170,11 @@ describe('User controller', () => {
 
     describe('PUT /account', () => {
 
+        /*
+         * It seems all of my tests for this route
+         * had the same structure, so I put it in a separate
+         * function.
+         */
         function putRequest(body) {
             return createAndLoginUser().then((token) => {
                 return request(server)
@@ -216,5 +221,24 @@ describe('User controller', () => {
                putRequest({old_password: genericUser.password, password: 'password1', confirm: 'wrongconfirm'})
            ).to.eventually.deep.equal([{msg: 'Passwords must match.'}]);
         });
+    });
+
+    describe('DELETE /account', () => {
+
+        it('should successfully delete user account', () => {
+
+            return expect(
+                createAndLoginUser().then((token) => {
+                    return request(server)
+                        .del('/account')
+                        .set('Authorization', `Bearer ${token}`)
+                        .send()
+                }).then((res) => {
+                    return res.body;
+                })
+            ).to.eventually.deep.equal({msg: 'Your account has been permanently deleted.'});
+
+        });
+
     })
 });

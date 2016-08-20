@@ -130,8 +130,10 @@ exports.accountPut = function(req, res, next) {
  * DELETE /account
  */
 exports.accountDelete = function(req, res, next) {
-  new User({ id: req.user.id }).destroy().then(function(user) {
+  User.deleteUser(req.user.id).then(() => {
     res.send({ msg: 'Your account has been permanently deleted.' });
+  }).catch((error) => {
+    res.status(400).send(error);
   });
 };
 
