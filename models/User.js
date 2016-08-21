@@ -57,10 +57,10 @@ const User = {
 
                 }).catch((error) => {
 
-                    const err = error.type === 'INVALID_INFO' ? {msg: error.msg} : genericMessage;
-                    reject(err);
+                const err = error.type === 'INVALID_INFO' ? {msg: error.msg} : genericMessage;
+                reject(err);
 
-                });
+            });
         });
     },
 
@@ -152,11 +152,11 @@ const User = {
                     hideFields(user);
                     resolve(user);
                 }).catch((err) => {
-                    if(err.type === 'INVALID_ARGUMENTS')
-                        reject({msg: err.msg})
-                    else
-                        reject(genericMessage);
-                });
+                if(err.type === 'INVALID_ARGUMENTS')
+                    reject({msg: err.msg})
+                else
+                    reject(genericMessage);
+            });
         });
     },
 
@@ -168,7 +168,20 @@ const User = {
                 reject(genericMessage);
             });
         });
-    }
+    },
+
+    removeProvider(id, providerName) {
+        return new Promise((resolve, reject) => {
+            knex('users').where('id', id).update({[providerName]: null}).then(() => {
+                resolve();
+            }).catch((error) => {
+                if(error.code === '42703') // Postgres code for undefined column
+                    reject({ msg: 'Invalid provider name.' });
+                else
+                    reject(genericMessage);
+            });
+        });
+    },
 
 };
 

@@ -222,4 +222,32 @@ describe('User Model', () => {
 
     });
 
+    describe('removeProvider', () => {
+
+        it('should unlink a provider successfully', () => {
+
+            return expect(
+                createUser().then(() => {
+                    return User.removeProvider(1, 'facebook');
+                }).then(() => {
+                    return knex.select('facebook').from('users').where('email', genericUser.email);
+                }).then(([result]) => {
+                    return result;
+                })
+            ).to.eventually.deep.equal({facebook: null});
+
+        });
+
+        it('should return an error if we send a nonexistent provider', () => {
+
+            return expect(
+                createUser().then(() => {
+                    return User.removeProvider(1, 'randomWebsite');
+                })
+            ).to.be.rejected.and.eventually.deep.equal({ msg: 'Invalid provider name.' });
+
+        });
+
+    });
+
 });
