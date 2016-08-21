@@ -68,7 +68,15 @@ describe('User controller', () => {
             return generateToken(parseInt(id));
         })
     };
-
+    /*
+     * It seems a lot of my tests for these routes
+     * had the same structure, so I put it in a separate
+     * function.
+     * It receives a requestType as string('get', 'post', 'put', or 'delete')
+     * and sends the request to the requested route.
+     * If body is not needed it defaults to null.
+     * If we need to send the authorization token, pass true as authorization parameter.
+     */
     const generateRequest = (requestType, route, body, authorization) => {
         return createAndLoginUser().then((token) => {
             switch (requestType.toUpperCase()) {
@@ -253,25 +261,9 @@ describe('User controller', () => {
 
     describe('PUT /account', () => {
 
-        /*
-         * It seems all of my tests for this route
-         * had the same structure, so I put it in a separate
-         * function.
-         */
-        function putRequest(body) {
-            return createAndLoginUser().then((token) => {
-                return request(server)
-                    .put('/account')
-                    .set('Authorization', `Bearer ${token}`)
-                    .send(body)
-            }).then((res) => {
-                return res.body;
-            })
-        }
-
         it('should update the password correctly', () => {
             return expect(
-                generateRequest('put', '/account', 
+                generateRequest('put', '/account',
                     {old_password: genericUser.password, password: 'newpassword', confirm: 'newpassword'}, true)
             ).to.eventually.deep.equal({msg: 'Your password has been changed.'});
         });

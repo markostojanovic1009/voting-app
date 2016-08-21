@@ -88,6 +88,7 @@ const User = {
                     } else {
                         error = genericMessage;
                     }
+                    console.log(err);
                     reject(error);
                 });
 
@@ -142,10 +143,10 @@ const User = {
 
     },
 
-    getUser(id) {
+    getUser(query) {
         return new Promise((resolve, reject) => {
 
-            knex.select("*").from('users').where({id})
+            knex.select("*").from('users').where(query)
                 .then(([user]) => {
                     if(!user)
                         throw { type: 'INVALID_ARGUMENTS', msg: 'No user found.' };
@@ -153,7 +154,7 @@ const User = {
                     resolve(user);
                 }).catch((err) => {
                 if(err.type === 'INVALID_ARGUMENTS')
-                    reject({msg: err.msg})
+                    reject({msg: err.msg});
                 else
                     reject(genericMessage);
             });
@@ -184,5 +185,4 @@ const User = {
     },
 
 };
-
 export default User;
