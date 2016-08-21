@@ -250,4 +250,55 @@ describe('User Model', () => {
 
     });
 
+    describe('resetPassword', () => {
+
+        it('should reset password when passed valid token', () => {
+
+            const password_reset_token = 'sljf3imf3nslfjs1';
+            return expect(
+                createUser().then(() => {
+                    return knex('users')
+                        .update({password_reset_token, password_reset_expires: new Date(Date.now() + 3600000)});
+                }).then(() => {
+                    return User.resetPassword('newpassword', password_reset_token);
+                })
+            ).to.eventually.deep.equal({email: genericUser.email});
+
+        });
+
+        it('should return an error if password is too short', () => {
+            return expect(
+                createUser().then(() => {
+                    return User.resetPassword('short', 'whatever');
+                })
+            ).to.be.rejected.and.eventually.deep.equal({msg: 'Password must be at least 8 characters long.'});
+        });
+
+        it('should return an error if reset token is invalid', () => {
+            const password_reset_token = 'sljf3imf3nslfjs1';
+            return expect(
+                createUser().then(() => {
+                    return knex('users')
+                        .update({password_reset_token, password_reset_expires: new Date(Date.now() + 3600000)});
+                }).then(() => {
+                    return User.resetPassword('newpassword', 'wrongToken');
+                })
+            ).to.be.rejected.and.eventually.deep.equal({msg: 'Password reset token is invalid or has expired.'});
+        });
+
+        it('should return an error if reset token expired', () => {
+            const password_reset_token = 'sljf3imf3nslfjs1';
+            return expect(
+                createUser().then(() => {
+                    return knex('users')
+                        .update({password_reset_token, password_reset_expires: new Date(Date.now() - 3600000)});
+                }).then(() => {
+                    return User.resetPassword('newpassword', password_reset_token);
+                })
+            ).to.be.rejected.and.eventually.deep.equal({msg: 'Password reset token is invalid or has expired.'});
+        });
+
+
+    });
+
 });

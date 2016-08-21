@@ -88,7 +88,6 @@ const User = {
                     } else {
                         error = genericMessage;
                     }
-                    console.log(err);
                     reject(error);
                 });
 
@@ -183,6 +182,26 @@ const User = {
             });
         });
     },
+
+    resetPassword(password, passwordResetToken) {
+        return new Promise((resolve, reject) => {
+            if(password.length < 8)
+                reject({msg: 'Password must be at least 8 characters long.'});
+            knex('users').update('password', password)
+                .where('password_reset_token', passwordResetToken)
+                .andWhere('password_reset_expires', '>', new Date())
+                .returning(['email'])
+                .then(([user]) => {
+                    if(!user) {
+                        reject({msg: 'Password reset token is invalid or has expired.'});
+                    }
+                    resolve(user);
+                })
+                .catch((error) => {
+                    reject(genericMessage);
+                });
+        })
+    }
 
 };
 export default User;
