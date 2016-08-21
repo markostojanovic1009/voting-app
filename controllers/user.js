@@ -141,28 +141,10 @@ exports.accountDelete = function(req, res, next) {
  * GET /unlink/:provider
  */
 exports.unlink = function(req, res, next) {
-  new User({ id: req.user.id })
-    .fetch()
-    .then(function(user) {
-      switch (req.params.provider) {
-        case 'facebook':
-          user.set('facebook', null);
-          break;
-        case 'google':
-          user.set('google', null);
-          break;
-        case 'twitter':
-          user.set('twitter', null);
-          break;
-        case 'vk':
-          user.set('vk', null);
-          break;
-        default:
-        return res.status(400).send({ msg: 'Invalid OAuth Provider' });
-      }
-      user.save(user.changed, { patch: true }).then(function() {
-      res.send({ msg: 'Your account has been unlinked.' });
-      });
+    User.removeProvider(req.user.id, req.params.provider).then(() => {
+        res.status(200).send({ msg: 'Your account has been unlinked.' });
+    }).catch((error) => {
+       res.status(400).send(error);
     });
 };
 

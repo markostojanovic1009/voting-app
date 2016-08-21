@@ -69,6 +69,89 @@ describe('User controller', () => {
         })
     };
 
+    const generateRequest = (requestType, route, body, authorization) => {
+        return createAndLoginUser().then((token) => {
+            switch (requestType.toUpperCase()) {
+                case 'GET': {
+                    if (authorization)
+                        return request(server)
+                            .get(route)
+                            .set('Authorization', `Bearer ${token}`)
+                            .send(body)
+                            .then((res) => {
+                                return res.body;
+                            });
+                    else
+                        return request(server)
+                            .get(route)
+                            .send(body)
+                            .then((res) => {
+                                return res.body;
+                            });
+                }
+
+                case "POST": {
+                    if (authorization)
+                        return request(server)
+                            .post(route)
+                            .set('Authorization', `Bearer ${token}`)
+                            .send(body)
+                            .then((res) => {
+                                return res.body;
+                            });
+                    else
+                        return request(server)
+                            .post(route)
+                            .send(body)
+                            .then((res) => {
+                                return res.body;
+                            });
+                }
+
+                case "PUT": {
+                    if (authorization)
+                        return request(server)
+                            .put(route)
+                            .set('Authorization', `Bearer ${token}`)
+                            .send(body)
+                            .then((res) => {
+                                return res.body;
+                            });
+                    else
+                        return request(server)
+                            .put(route)
+                            .send(body)
+                            .then((res) => {
+                                return res.body;
+                            });
+                }
+
+                case "DELETE": {
+                    if (authorization)
+                        return request(server)
+                            .del(route)
+                            .set('Authorization', `Bearer ${token}`)
+                            .send(body)
+                            .then((res) => {
+                                return res.body;
+                            });
+                    else
+                        return request(server)
+                            .del(route)
+                            .send(body)
+                            .then((res) => {
+                                return res.body;
+                            });
+                }
+
+                default:
+                    return null;
+
+            }
+        });
+
+    };
+
     describe('POST /login', () => {
 
         it('should return a token and user when passed valid info', () => {
@@ -188,7 +271,8 @@ describe('User controller', () => {
 
         it('should update the password correctly', () => {
             return expect(
-                putRequest({old_password: genericUser.password, password: 'newpassword', confirm: 'newpassword'})
+                generateRequest('put', '/account', 
+                    {old_password: genericUser.password, password: 'newpassword', confirm: 'newpassword'}, true)
             ).to.eventually.deep.equal({msg: 'Your password has been changed.'});
         });
 
@@ -201,7 +285,7 @@ describe('User controller', () => {
             delete updatedUser.github;
             delete updatedUser.picture;
             return expect(
-                putRequest({email: updatedUser.email})
+                generateRequest('put', '/account', {email: updatedUser.email}, true)
             ).to.eventually.deep.equal({
                 msg: 'Your profile information has been updated.',
                 user: updatedUser
@@ -211,14 +295,16 @@ describe('User controller', () => {
         it('should return an error if the user tries to change the password without valid original password', () => {
 
             return expect(
-                putRequest({old_password: 'wrongpassword', password: 'newpassword', confirm: 'newpassword'})
+                generateRequest('put', '/account', {old_password: 'wrongpassword',
+                    password: 'newpassword', confirm: 'newpassword'}, true)
             ).to.eventually.deep.equal({msg: 'Wrong password.'});
 
         });
 
         it('should return an error if password and confirm fields do not match', () => {
            return expect(
-               putRequest({old_password: genericUser.password, password: 'password1', confirm: 'wrongconfirm'})
+               generateRequest('put', '/account',
+                   {old_password: genericUser.password, password: 'password1', confirm: 'wrongconfirm'}, true)
            ).to.eventually.deep.equal([{msg: 'Passwords must match.'}]);
         });
     });
@@ -228,17 +314,30 @@ describe('User controller', () => {
         it('should successfully delete user account', () => {
 
             return expect(
-                createAndLoginUser().then((token) => {
-                    return request(server)
-                        .del('/account')
-                        .set('Authorization', `Bearer ${token}`)
-                        .send()
-                }).then((res) => {
-                    return res.body;
-                })
+                generateRequest('delete', '/account', null, true)
             ).to.eventually.deep.equal({msg: 'Your account has been permanently deleted.'});
 
         });
 
-    })
+    });
+
+    describe('GET /unlink/:provider', () => {
+
+        it('should successfully unlink a provider account', () => {
+
+            return expect(
+                generateRequest('get', '/unlink/facebook', null, true)
+            ).to.eventually.deep.equal({ msg: 'Your account has been unlinked.' });
+
+        });
+
+        it('should return an error if we try to unlink a nonexistent provider', () => {
+
+            return expect(
+                generateRequest('get', '/unlink/nonexistent', null, true)
+            ).to.eventually.deep.equal({msg: 'Invalid provider name.'});
+
+        });
+
+    });
 });
