@@ -356,64 +356,76 @@ exports.authGoogle = function(req, res) {
         redirect_uri: req.body.redirectUri,
         grant_type: 'authorization_code'
     };
-
     // Step 1. Exchange authorization code for access token.
     request.post(accessTokenUrl, { json: true, form: params }, function(err, response, token) {
-        var accessToken = token.access_token;
-        var headers = { Authorization: 'Bearer ' + accessToken };
+     var accessToken = token.access_token;
+     var headers = { Authorization: 'Bearer ' + accessToken };
 
         // Step 2. Retrieve user's profile information.
         request.get({ url: peopleApiUrl, headers: headers, json: true }, function(err, response, profile) {
             if (profile.error) {
                 return res.status(500).send({ message: profile.error.message });
             }
+
             // Step 3a. Link accounts if user is authenticated.
+            // This step is for linking the account AFTER the user already has an account.
             if (req.isAuthenticated()) {
-                new User({ google: profile.sub })
-                    .fetch()
-                    .then(function(user) {
-                        if (user) {
-                            return res.status(409).send({ msg: 'There is already an existing account linked with Google that belongs to you.' });
-                        }
-                        user = req.user;
-                        user.set('name', user.get('name') || profile.name);
-                        user.set('gender', user.get('gender') || profile.gender);
-                        user.set('picture', user.get('picture') || profile.picture.replace('sz=50', 'sz=200'));
-                        user.set('location', user.get('location') || profile.location);
-                        user.set('google', profile.sub);
-                        user.save(user.changed, { patch: true }).then(function() {
-                            res.send({ token: generateToken(user), user: user });
+                User.getUser({google: profile.sub}).then((user) => {
+                    if(user) {
+                        throw { type: 'ACCOUNT_LINKED_ALREADY' };
+                    } else {
+                        return User.updateUser(req.user.id, {
+                            name: req.user.name || profile.name,
+                            gender: req.user.gender || profile.gender,
+                            picture: req.user.picture || profile.picture.replace('sz=50', 'sz=200'),
+                            location: req.user.location || profile.location,
+                            google: profile.sub
                         });
-                    });
+                    }
+                }).then((updatedUser) => {
+                    res.send({token: generateToken(updatedUser), user: updatedUser});
+                }).catch((error) => {
+                    if(error.type === 'ACCOUNT_LINKED_ALREADY')
+                        return res.status(409).send({
+                            msg: 'There is already an existing account linked with Facebook that belongs to you.'
+                        });
+                    return res.status(400).send({msg: 'An error occurred. Please try again later.'});
+                });
             } else {
                 // Step 3b. Create a new user account or return an existing one.
-                new User({ google: profile.sub })
-                    .fetch()
-                    .then(function(user) {
-                        if (user) {
-                            return res.send({ token: generateToken(user), user: user });
-                        }
-                        new User({ email: profile.email })
-                            .fetch()
-                            .then(function(user) {
-                                if (user) {
-                                    return res.status(400).send({ msg: user.get('email') + ' is already associated with another account.' })
-                                }
-                                user = new User();
-                                user.set('name', profile.name);
-                                user.set('email', profile.email);
-                                user.set('gender', profile.gender);
-                                user.set('location', profile.location);
-                                user.set('picture', profile.picture.replace('sz=50', 'sz=200'));
-                                user.set('google', profile.sub);
-                                user.save().then(function(user) {
-                                    res.send({ token: generateToken(user), user: user });
-                                });
-                            });
+                // This part is for logging in or creating a new account via Google.
+                User.getUser({google: profile.sub }).then((user) => {
+                    // User has an account. Log him in
+                    if (user) {
+                        throw {type: 'USER_FOUND', user};
+                    }
+                    // Otherwise, see if user has an account with the email
+                    // the same as the email regiestered to google.
+                    return User.getUser({email: profile.email, google: null});
+                }).then((unlinkedUser) => {
+                    // In that case, just link the facebook account. Otherwise
+                    // create a new account. I put 'nopassword' as password because it's required
+                    // by User.createUser, and it doesn't matter because it will never be used again.
+                    return unlinkedUser || User.createUser(profile.email, 'nopassword', profile.name);
+                }).then((user) => {
+                    return User.updateUser(user.id, {
+                        gender: profile.gender,
+                        location: profile.location,
+                        picture: profile.picture.replace('sz=50', 'sz=200'),
+                        google: profile.sub
                     });
+                }).then((newUser) => {
+                    return res.send({token: generateToken(newUser), user: newUser});
+                }).catch((error) => {
+                    if(error.type === 'USER_FOUND')
+                        res.send({token: generateToken(error.user), user: error.user});
+                    else
+                        res.status(400).send(error);
+                });
             }
         });
     });
+
 };
 
 exports.authGoogleCallback = function(req, res) {

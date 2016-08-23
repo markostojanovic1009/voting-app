@@ -488,7 +488,7 @@ function twitterLogin() {
 function googleLogin() {
   var google = {
     url: 'http://localhost:3000/auth/google',
-    clientId: '814958990796-p1centjebv1k0htp3am05tfg5k10nl0k.apps.googleusercontent.com',
+    clientId: '907244779641-aotpjepfhsev2kn2655v58g6ugns2cer.apps.googleusercontent.com',
     redirectUri: 'http://localhost:3000/auth/google/callback',
     authorizationUrl: 'https://accounts.google.com/o/oauth2/auth',
     scope: 'openid profile email',
@@ -548,6 +548,7 @@ function unlink(provider, token) {
         return response.json().then(function (json) {
           dispatch({
             type: 'UNLINK_SUCCESS',
+            provider: provider,
             messages: [json]
           });
         });
@@ -4450,6 +4451,9 @@ Object.defineProperty(exports, "__esModule", {
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 exports.default = auth;
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 var initialState = {
   token: null,
   user: {}
@@ -4472,7 +4476,7 @@ function auth() {
       });
     case 'UNLINK_SUCCESS':
       return Object.assign({}, state, {
-        user: Object.assign({}, state.user, { facebook: null })
+        user: Object.assign({}, state.user, _defineProperty({}, action.provider, null))
       });
     case 'LOGOUT_SUCCESS':
       return _get__('initialState');
