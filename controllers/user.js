@@ -387,7 +387,7 @@ exports.authGoogle = function(req, res) {
                 }).catch((error) => {
                     if(error.type === 'ACCOUNT_LINKED_ALREADY')
                         return res.status(409).send({
-                            msg: 'There is already an existing account linked with Facebook that belongs to you.'
+                            msg: 'There is already an existing account linked with Google that belongs to you.'
                         });
                     return res.status(400).send({msg: 'An error occurred. Please try again later.'});
                 });
@@ -482,43 +482,59 @@ exports.authTwitter = function(req, res) {
             request.get({ url: profileUrl + accessToken.screen_name, oauth: profileOauth, json: true }, function(err, response, profile) {
 
                 // Step 5a. Link accounts if user is authenticated.
+                // This step is for linking the account AFTER the user already has an account.
                 if (req.isAuthenticated()) {
-                    new User({ twitter: profile.id })
-                        .fetch()
-                        .then(function(user) {
-                            if (user) {
-                                return res.status(409).send({ msg: 'There is already an existing account linked with Twitter that belongs to you.' });
-                            }
-                            user = req.user;
-                            user.set('name', user.get('name') || profile.name);
-                            user.set('location', user.get('location') || profile.location);
-                            user.set('picture', user.get('picture') || profile.profile_image_url_https);
-                            user.set('twitter', profile.id);
-                            user.save(user.changed, { patch: true }).then(function() {
-                                res.send({ token: generateToken(user), user: user });
+                    User.getUser({twitter: profile.id}).then((user) => {
+                        if(user) {
+                            throw { type: 'ACCOUNT_LINKED_ALREADY' };
+                        } else {
+                            return User.updateUser(req.user.id, {
+                                name: req.user.name || profile.name,
+                                picture: req.user.picture || profile.profile_image_url_https,
+                                location: req.user.location || profile.location,
+                                twitter: profile.id
                             });
-                        });
+                        }
+                    }).then((updatedUser) => {
+                        res.send({token: generateToken(updatedUser), user: updatedUser});
+                    }).catch((error) => {
+                        if(error.type === 'ACCOUNT_LINKED_ALREADY')
+                            return res.status(409).send({
+                                msg: 'There is already an existing account linked with Twitter that belongs to you.'
+                            });
+                        return res.status(400).send({msg: 'An error occurred. Please try again later.'});
+                    });
                 } else {
                     // Step 5b. Create a new user account or return an existing one.
-                    new User({ twitter: profile.id })
-                        .fetch()
-                        .then(function(user) {
-                            if (user) {
-                                return res.send({ token: generateToken(user), user: user });
-                            }
-                            // Twitter does not provide an email address, but email is a required field in our User schema.
-                            // We can "fake" a Twitter email address as follows: username@twitter.com.
-                            user = new User();
-                            user.set('name', profile.name);
-                            user.set('email', profile.username + '@twitter.com');
-                            user.set('location', profile.location);
-                            user.set('picture', profile.profile_image_url_https);
-                            user.set('twitter', profile.id);
-                            user.save().then(function(user) {
-                                res.send({ token: generateToken(user), user: user });
-                            });
+                    // This part is for logging in or creating a new account via Twitter.
+                    User.getUser({twitter: profile.id }).then((user) => {
+                        // User has an account. Log him in
+                        if (user) {
+                            throw {type: 'USER_FOUND', user};
+                        }
+                        // Use the email address 'hack' to check if user created an account with twitter.
+                        // See comment below.
+                        return User.getUser({email: `${profile.screen_name}@twitter.com`, google: null});
+                    }).then((unlinkedUser) => {
+                        // Twitter does not provide an email address, but email is a required field in our User schema.
+                        // We can "fake" a Twitter email address as follows: screen_name@twitter.com.
+                        return unlinkedUser || User.createUser(`${profile.screen_name}@twitter.com`, 'nopassword', profile.name);
+                    }).then((user) => {
+                        return User.updateUser(user.id, {
+                            location: profile.location,
+                            picture: profile.profile_image_url_https,
+                            twitter: profile.id
                         });
+                    }).then((newUser) => {
+                        return res.send({token: generateToken(newUser), user: newUser});
+                    }).catch((error) => {
+                        if(error.type === 'USER_FOUND')
+                            res.send({token: generateToken(error.user), user: error.user});
+                        else
+                            res.status(400).send(error);
+                    });
                 }
+
             });
         });
     }
