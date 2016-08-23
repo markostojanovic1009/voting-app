@@ -172,9 +172,12 @@ exports.forgotPost = function(req, res, next) {
         function(token, done) {
             User.getUser({email: req.body.email})
                 .then((user) => {
+                    if(!user) {
+                        throw { type: 'NO_USER'};
+                    }
                     return User.updateUser(user.id, {
                         password_reset_token: token,
-                        password_reset_expires: new Date(Date.now() + 3600000)
+                        password_reset_expires: new Date(Date.now() + 3600000) // 1 Hour later.
                     });
                 })
                 .then((user) => {
@@ -194,49 +197,34 @@ exports.forgotPost = function(req, res, next) {
                         'http://' + req.headers.host + '/reset/' + token + '\n\n' +
                         'If you did not request this, please ignore this email and your password will remain unchanged.\n'
                     };
-                    transporter.sendMail(mailOptions, function(err) {
-                        res.send({ msg: 'An email has been sent to ' + user.email + ' with further instructions.' });
-                        done(err);
-                    });
+                    transporter.sendMail(mailOptions);
+                    res.send({ msg: 'An email has been sent to ' + user.email + ' with further instructions.' });
                 })
-                .catch(() => {
-                    return res.status(400).send({ msg: 'The email address ' + req.body.email + ' is not associated with any account.' });
+                .catch((error) => {
+                    if(error.type === 'NO_USER')
+                        return res.status(400).send({ msg: 'The email address ' + req.body.email + ' is not associated with any account.' });
+                    else
+                        return res.status(400).send({ msg: 'An error occurred. Please try again later.'});
                 });
         }
     ]);
 };
 
 /**
- * POST /reset
+ * POST /reset/:token
  */
 exports.resetPost = function(req, res, next) {
-    req.assert('password', 'Password must be at least 4 characters long').len(4);
+    req.assert('password', 'Password must be at least 8 characters long').len(8);
     req.assert('confirm', 'Passwords must match').equals(req.body.password);
 
     var errors = req.validationErrors();
 
     if (errors) {
-        return res.status(400).send(errors);
+        return res.status(400).send(mapValidationErrors(errors));
     }
 
-    async.waterfall([
-        function(done) {
-            new User({ passwordResetToken: req.params.token })
-                .where('passwordResetExpires', '>', new Date())
-                .fetch()
-                .then(function(user) {
-                    if (!user) {
-                        return res.status(400).send({ msg: 'Password reset token is invalid or has expired.' });
-                    }
-                    user.set('password', req.body.password);
-                    user.set('passwordResetToken', null);
-                    user.set('passwordResetExpires', null);
-                    user.save(user.changed, { patch: true }).then(function() {
-                        done(err, user.toJSON());
-                    });
-                });
-        },
-        function(user, done) {
+    User.resetPassword(req.body.password, req.params.token)
+        .then((user) => {
             var transporter = nodemailer.createTransport({
                 service: 'Mailgun',
                 auth: {
@@ -245,17 +233,18 @@ exports.resetPost = function(req, res, next) {
                 }
             });
             var mailOptions = {
-                from: 'support@yourdomain.com',
+                from: 'support@boilerplate.com',
                 to: user.email,
-                subject: 'Your Mega Boilerplate password has been changed',
+                subject: 'Your password has been changed',
                 text: 'Hello,\n\n' +
                 'This is a confirmation that the password for your account ' + user.email + ' has just been changed.\n'
             };
-            transporter.sendMail(mailOptions, function(err) {
-                res.send({ msg: 'Your password has been changed successfully.' });
-            });
-        }
-    ]);
+            transporter.sendMail(mailOptions);
+            res.send({ msg: 'Your password has been changed successfully.' });
+        })
+        .catch((error) => {
+            res.status(400).send(error);
+        });
 };
 
 /**
@@ -263,9 +252,13 @@ exports.resetPost = function(req, res, next) {
  * Sign in with Facebook
  */
 exports.authFacebook = function(req, res) {
+
+    /*
+        Configuration as per Facebook API instructions.
+     */
     var profileFields = ['id', 'name', 'email', 'gender', 'location'];
-    var accessTokenUrl = 'https://graph.facebook.com/v2.5/oauth/access_token';
-    var graphApiUrl = 'https://graph.facebook.com/v2.5/me?fields=' + profileFields.join(',');
+    var accessTokenUrl = 'https://graph.facebook.com/v2.7/oauth/access_token';
+    var graphApiUrl = 'https://graph.facebook.com/v2.7/me?fields=' + profileFields.join(',');
 
     var params = {
         code: req.body.code,
@@ -287,48 +280,59 @@ exports.authFacebook = function(req, res) {
             }
 
             // Step 3a. Link accounts if user is authenticated.
+            // This step is for linking the account AFTER the user already has an account.
             if (req.isAuthenticated()) {
-                new User({ facebook: profile.id })
-                    .fetch()
-                    .then(function(user) {
-                        if (user) {
-                            return res.status(409).send({ msg: 'There is already an existing account linked with Facebook that belongs to you.' });
-                        }
-                        user = req.user;
-                        user.set('name', user.get('name') || profile.name);
-                        user.set('gender', user.get('gender') || profile.gender);
-                        user.set('picture', user.get('picture') || 'https://graph.facebook.com/' + profile.id + '/picture?type=large');
-                        user.set('facebook', profile.id);
-                        user.save(user.changed, { patch: true }).then(function() {
-                            res.send({ token: generateToken(user), user: user });
+                User.getUser({facebook: profile.id}).then((user) => {
+                    if(user) {
+                        throw { type: 'ACCOUNT_LINKED_ALREADY' };
+                    } else {
+                        return User.updateUser(req.user.id, {
+                            name: req.user.name || profile.name,
+                            gender: req.user.gender || profile.gender,
+                            picture: req.user.picture || `https://graph.facebook.com/${profile.id}/picture?type=large`,
+                            facebook: profile.id
                         });
-                    });
+                    }
+                }).then((updatedUser) => {
+                    res.send({token: generateToken(updatedUser), user: updatedUser});
+                }).catch((error) => {
+                    if(error.type === 'ACCOUNT_LINKED_ALREADY')
+                        return res.status(409).send({
+                            msg: 'There is already an existing account linked with Facebook that belongs to you.'
+                        });
+                    return res.status(400).send({msg: 'An error occurred. Please try again later.'});
+                });
             } else {
                 // Step 3b. Create a new user account or return an existing one.
-                new User({ facebook: profile.id })
-                    .fetch()
-                    .then(function(user) {
-                        if (user) {
-                            return res.send({ token: generateToken(user), user: user });
-                        }
-                        new User({ email: profile.email })
-                            .fetch()
-                            .then(function(user) {
-                                if (user) {
-                                    return res.status(400).send({ msg: user.get('email') + ' is already associated with another account.' })
-                                }
-                                user = new User();
-                                user.set('name', profile.name);
-                                user.set('email', profile.email);
-                                user.set('gender', profile.gender);
-                                user.set('location', profile.location && profile.location.name);
-                                user.set('picture', 'https://graph.facebook.com/' + profile.id + '/picture?type=large');
-                                user.set('facebook', profile.id);
-                                user.save().then(function(user) {
-                                    return res.send({ token: generateToken(user), user: user });
-                                });
-                            });
+                // This part is for logging in or creating a new account via Facebook.
+                User.getUser({facebook: profile.id }).then((user) => {
+                    // User has an account. Log him in
+                    if (user) {
+                        throw {type: 'USER_FOUND', user};
+                    }
+                    // Otherwise, see if user has an account with the email
+                    // the same as the email regiestered to facebook.
+                    return User.getUser({email: profile.email, facebook: null});
+                }).then((unlinkedUser) => {
+                    // In that case, just link the facebook account. Otherwise
+                    // create a new account. I put 'nopassword' as password because it's required
+                    // by User.createUser, and it doesn't matter because it will never be used again.
+                    return unlinkedUser || User.createUser(profile.email, 'nopassword', profile.name);
+                }).then((user) => {
+                    return User.updateUser(user.id, {
+                        gender: profile.gender,
+                        location: profile.location && profile.location.name,
+                        picture: `https://graph.facebook.com/${profile.id}/picture?type=large`,
+                        facebook: profile.id
                     });
+                }).then((newUser) => {
+                    return res.send({token: generateToken(newUser), user: newUser});
+                }).catch((error) => {
+                    if(error.type === 'USER_FOUND')
+                        res.send({token: generateToken(error.user), user: error.user});
+                    else
+                        res.status(400).send(error);
+                });
             }
         });
     });

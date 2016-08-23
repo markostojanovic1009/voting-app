@@ -125,7 +125,8 @@ const User = {
     updateUser(id, newUserInfo) {
         return new Promise((resolve, reject) => {
             knex('users').where('id', id).update(newUserInfo)
-                .returning(['id', 'email', 'name', 'gender', 'location', 'website'])
+                .returning(['id', 'email', 'name', 'gender', 'location', 'picture',
+                    'website', 'facebook', 'google', 'twitter', 'github'])
                 .then(([user]) => {
                     resolve(user);
                 })
@@ -148,15 +149,12 @@ const User = {
             knex.select("*").from('users').where(query)
                 .then(([user]) => {
                     if(!user)
-                        throw { type: 'INVALID_ARGUMENTS', msg: 'No user found.' };
+                        resolve(null);
                     hideFields(user);
                     resolve(user);
                 }).catch((err) => {
-                if(err.type === 'INVALID_ARGUMENTS')
-                    reject({msg: err.msg});
-                else
                     reject(genericMessage);
-            });
+                });
         });
     },
 
@@ -187,7 +185,7 @@ const User = {
         return new Promise((resolve, reject) => {
             if(password.length < 8)
                 reject({msg: 'Password must be at least 8 characters long.'});
-            knex('users').update('password', password)
+            knex('users').update({password, password_reset_token: null, password_reset_expires: null})
                 .where('password_reset_token', passwordResetToken)
                 .andWhere('password_reset_expires', '>', new Date())
                 .returning(['email'])

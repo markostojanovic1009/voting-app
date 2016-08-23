@@ -458,9 +458,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function facebookLogin() {
   var facebook = {
     url: 'http://localhost:3000/auth/facebook',
-    clientId: '980220002068787',
+    clientId: '763886170417545',
     redirectUri: 'http://localhost:3000/auth/facebook/callback',
-    authorizationUrl: 'https://www.facebook.com/v2.5/dialog/oauth',
+    authorizationUrl: 'https://www.facebook.com/v2.7/dialog/oauth',
     scope: 'email,user_location',
     width: 580,
     height: 400
@@ -538,9 +538,12 @@ function link(provider) {
 }
 
 // Unlink account
-function unlink(provider) {
+function unlink(provider, token) {
   return function (dispatch) {
-    return fetch('/unlink/' + provider).then(function (response) {
+    return fetch('/unlink/' + provider, {
+      method: 'GET',
+      headers: { 'Authorization': 'Bearer ' + token }
+    }).then(function (response) {
       if (response.ok) {
         return response.json().then(function (json) {
           dispatch({
@@ -1594,7 +1597,7 @@ var Profile = function (_get__$Component) {
   }, {
     key: 'handleUnlink',
     value: function handleUnlink(provider) {
-      this.props.dispatch(_get__('unlink')(provider));
+      this.props.dispatch(_get__('unlink')(provider, this.props.token));
     }
   }, {
     key: 'render',
@@ -4466,6 +4469,10 @@ function auth() {
       return Object.assign({}, state, {
         token: action.token,
         user: action.user
+      });
+    case 'UNLINK_SUCCESS':
+      return Object.assign({}, state, {
+        user: Object.assign({}, state.user, { facebook: null })
       });
     case 'LOGOUT_SUCCESS':
       return _get__('initialState');

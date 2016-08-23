@@ -43,7 +43,7 @@ class Profile extends React.Component {
   }
 
   handleUnlink(provider) {
-    this.props.dispatch(unlink(provider));
+    this.props.dispatch(unlink(provider, this.props.token));
   }
 
   render() {

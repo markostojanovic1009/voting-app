@@ -301,4 +301,10 @@ describe('User Model', () => {
 
     });
 
+    it('should return null', () => {
+
+        return expect(User.getUser({id: 1})).to.eventually.deep.equal(null)
+
+    });
+
 });

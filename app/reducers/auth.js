@@ -15,6 +15,10 @@ export default function auth(state = initialState, action) {
         token: action.token,
         user: action.user
       });
+    case 'UNLINK_SUCCESS':
+      return Object.assign({}, state, {
+        user: Object.assign({}, state.user, {facebook: null})
+      });
     case 'LOGOUT_SUCCESS':
       return initialState;
     default:

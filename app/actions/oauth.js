@@ -8,9 +8,9 @@ import { browserHistory } from 'react-router';
 export function facebookLogin() {
   const facebook = {
     url: 'http://localhost:3000/auth/facebook',
-    clientId: process.env.FACEBOOK_ID,
+    clientId: '763886170417545',
     redirectUri: 'http://localhost:3000/auth/facebook/callback',
-    authorizationUrl: 'https://www.facebook.com/v2.5/dialog/oauth',
+    authorizationUrl: 'https://www.facebook.com/v2.7/dialog/oauth',
     scope: 'email,user_location',
     width: 580,
     height: 400
@@ -109,9 +109,12 @@ export function link(provider) {
 }
 
 // Unlink account
-export function unlink(provider) {
+export function unlink(provider, token) {
   return (dispatch) => {
-    return fetch('/unlink/' + provider).then((response) => {
+    return fetch('/unlink/' + provider, {
+      method: 'GET',
+      headers: { 'Authorization': `Bearer ${token}`}
+    }).then((response) => {
       if (response.ok) {
         return response.json().then((json) => {
           dispatch({

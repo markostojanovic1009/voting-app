@@ -22,7 +22,7 @@ require('babel-core/register');
 require('babel-polyfill');
 
 // Models
-const User = require('./models/User');
+const User = require('./models/User').default;
 
 // Controllers
 var userController = require('./controllers/user');
