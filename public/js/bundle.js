@@ -505,7 +505,7 @@ function googleLogin() {
 function githubLogin() {
   var github = {
     url: 'http://localhost:3000/auth/github',
-    clientId: 'c8d5bf482c0ece46fa1a',
+    clientId: 'ab3e0fd83cebd3b7507d',
     redirectUri: 'http://localhost:3000/auth/github/callback',
     authorizationUrl: 'https://github.com/login/oauth/authorize',
     scope: 'user:email profile repo',
