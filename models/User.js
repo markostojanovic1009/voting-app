@@ -10,6 +10,8 @@ const genericMessage = {
 
 // Hides password, passwordResetToken, passwordResetExpires
 // and timestamps(created_at and updated_at).
+// These should not be sent to the controller except where explicitly needed,
+// such as for changing or resetting the password.
 function hideFields(user) {
     delete user.password;
     delete user.password_reset_token;
@@ -39,6 +41,10 @@ function hideFields(user) {
  */
 const User = {
 
+
+    /*
+     * Returns user info.
+     */
     verifyUser(email, password) {
         return new Promise((resolve, reject)=> {
 
@@ -64,6 +70,9 @@ const User = {
         });
     },
 
+    /*
+     * Adds a new account to the database
+     */
     createUser(email, password, name) {
         return new Promise((resolve, reject) => {
 
@@ -94,34 +103,29 @@ const User = {
         });
     },
 
-    changePassword(id, oldPassword, newPassword) {
+    changePassword(id, newPassword) {
         return new Promise((resolve, reject) => {
-
-            knex.select('password').from('users').where('id', id)
-                .then(([user]) => {
-                    if(!bcrypt.compareSync(oldPassword, user.password)) {
-                        throw {
-                            type: 'WRONG_PASSWORD',
-                            msg: 'Wrong password.'
-                        }
-                    }
-                    return knex('users').where('id', id).update({
-                        password: bcrypt.hashSync(newPassword, bcrypt.genSaltSync(10))
-                    });
+            if(newPassword.length < 8)
+                reject({msg: 'Password must be at least 8 characters long.'});
+            knex('users')
+                .where('id', id)
+                .update({
+                    password: bcrypt.hashSync(newPassword, bcrypt.genSaltSync(10))
                 })
                 .then(() => {
                     resolve();
                 })
                 .catch((err) => {
-                    if(err.type === 'WRONG_PASSWORD')
-                        reject({msg: err.msg});
-                    else
-                        reject(genericMessage);
+                    reject(genericMessage);
                 });
+        });
 
-        })
     },
 
+    /*
+     * Updates the user. newUserInfo is a hash of properties to update.
+     * It's passed directly to knex.update
+     */
     updateUser(id, newUserInfo) {
         return new Promise((resolve, reject) => {
             knex('users').where('id', id).update(newUserInfo)
@@ -143,6 +147,9 @@ const User = {
 
     },
 
+    /*
+     * Gets user based on any knex.where query.
+     */
     getUser(query) {
         return new Promise((resolve, reject) => {
 
@@ -153,8 +160,8 @@ const User = {
                     hideFields(user);
                     resolve(user);
                 }).catch((err) => {
-                    reject(genericMessage);
-                });
+                reject(genericMessage);
+            });
         });
     },
 

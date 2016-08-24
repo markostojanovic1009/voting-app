@@ -5,8 +5,12 @@ var jwt = require('jsonwebtoken');
 var moment = require('moment');
 var request = require('request');
 var qs = require('querystring');
+
 import User from '../models/User';
 
+/*
+ * Generate JWT token. Lasts 7 days.
+ */
 function generateToken(user) {
     var payload = {
         iss: 'my.domain.com',
@@ -38,7 +42,7 @@ exports.ensureAuthenticated = function(req, res, next) {
 };
 /**
  * POST /login
- * Sign in with email and password
+ * Sign in with email and password.
  */
 exports.loginPost = function(req, res, next) {
     req.assert('email', 'Email is not valid.').isEmail();
@@ -127,7 +131,8 @@ exports.accountPut = function(req, res, next) {
 };
 
 /**
- * DELETE /account
+ * DELETE /account.
+ * Permanently deletes the account.
  */
 exports.accountDelete = function(req, res, next) {
     User.deleteUser(req.user.id).then(() => {
@@ -149,7 +154,9 @@ exports.unlink = function(req, res, next) {
 };
 
 /**
- * POST /forgot
+ * POST /forgot.
+ * Generates a random password reset token ( 16 Bytes ) and emails
+ * the link to the user.
  */
 exports.forgotPost = function(req, res, next) {
     req.assert('email', 'Email is not valid').isEmail();
@@ -211,7 +218,9 @@ exports.forgotPost = function(req, res, next) {
 };
 
 /**
- * POST /reset/:token
+ * POST /reset/:token.
+ * Resets the password if password reset token is correct and hasn't expired.
+ * Sends an email to the user to notify him.
  */
 exports.resetPost = function(req, res, next) {
     req.assert('password', 'Password must be at least 8 characters long').len(8);
@@ -400,10 +409,10 @@ exports.authGoogle = function(req, res) {
                         throw {type: 'USER_FOUND', user};
                     }
                     // Otherwise, see if user has an account with the email
-                    // the same as the email regiestered to google.
+                    // the same as the email regiestered to Google.
                     return User.getUser({email: profile.email, google: null});
                 }).then((unlinkedUser) => {
-                    // In that case, just link the facebook account. Otherwise
+                    // In that case, just link the Google account. Otherwise
                     // create a new account. I put 'nopassword' as password because it's required
                     // by User.createUser, and it doesn't matter because it will never be used again.
                     return unlinkedUser || User.createUser(profile.email, 'nopassword', profile.name);
@@ -603,7 +612,7 @@ exports.authGithub = function(req, res) {
                         throw {type: 'USER_FOUND', user};
                     }
                     // Otherwise, see if user has an account with the email
-                    // the same as the email regiestered to github.
+                    // the same as the email regiestered to Github.
                     const email = profile.email || `${profile.login}@github.com`; // See comment below.
                     return User.getUser({email, github: null});
                 }).then((unlinkedUser) => {
