@@ -71,8 +71,41 @@ describe('Poll Model', () => {
 
             return expect(
                 Poll.createPoll(5, 'New title')
-            ).to.be.rejected.and.eventually.deep.equal({mgs: 'Wrong user id.'});
+            ).to.be.rejected.and.eventually.deep.equal({msg: 'Wrong user id.'});
         });
+
+    });
+
+    const createPoll = () => {
+      return createUser().then(() => {
+          return knex('polls').insert({user_id: 1, title: 'New poll.'}).returning(['id', 'user_id', 'title']);
+      });
+    };
+
+    describe('addPollOptions', () => {
+
+        it('should add new options to the poll', () => {
+            const pollOptions = [{text: 'Poll option1'}, {text: 'Poll option2'}];
+            return expect(
+                createPoll().then(([poll]) => {
+                    return Poll.addPollOptions(poll.id, pollOptions);
+                }).then(() => {
+                    return knex.select('text').from('poll_options');
+                })
+            ).to.eventually.deep.equal(pollOptions);
+        });
+
+        it('should return an error if poll id is wrong', () => {
+            return expect(
+                Poll.addPollOptions(5, [{text: 'Poll Option 1'}])
+            ).to.be.rejected.and.eventually.deep.equal({msg: 'Wrong poll id.'});
+        });
+
+        it('should return an error if second parameter is not an array', () => {
+            return expect(
+                Poll.addPollOptions(5, 'Not an array')
+            ).to.be.rejected.and.eventually.deep.equal({ msg: 'Second argument must be an array.'});
+        })
 
     });
 

@@ -20,12 +20,16 @@ exports.up = function(knex, Promise) {
             table.increments();
             table.integer('user_id').references('id').inTable('users');
             table.string('title').notNullable();
+        }).createTable('poll_options', function(table) {
+            table.increments();
+            table.string('text');
+            table.integer('poll_id').references('id').inTable('polls');
         })
     ]);
 };
 
 exports.down = function(knex, Promise) {
     return Promise.all([
-        knex.schema.dropTable('polls').dropTable('users')
+        knex.schema.dropTableIfExists('poll_options').dropTable('polls').dropTable('users')
     ]);
 };
