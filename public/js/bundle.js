@@ -1583,6 +1583,7 @@ var Profile = function (_get__$Component) {
     value: function handleChangePassword(event) {
       event.preventDefault();
       this.props.dispatch(_get__('changePassword')(this.state.password, this.state.confirm, this.props.token));
+      this.setState({ password: '', confirm: '' });
     }
   }, {
     key: 'handleDeleteAccount',
@@ -17158,6 +17159,7 @@ function runLeaveHooks(routes, prevState) {
 }).call(this,require('_process'))
 
 },{"./AsyncUtils":98,"./routerWarning":132,"_process":83}],117:[function(require,module,exports){
+(function (process){
 'use strict';
 
 exports.__esModule = true;
@@ -17172,6 +17174,10 @@ var _RouterContext = require('./RouterContext');
 
 var _RouterContext2 = _interopRequireDefault(_RouterContext);
 
+var _routerWarning = require('./routerWarning');
+
+var _routerWarning2 = _interopRequireDefault(_routerWarning);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 exports.default = function () {
@@ -17179,16 +17185,19 @@ exports.default = function () {
     middlewares[_key] = arguments[_key];
   }
 
-  var withContext = middlewares.map(function (m) {
-    return m.renderRouterContext;
-  }).filter(function (f) {
-    return f;
-  });
-  var withComponent = middlewares.map(function (m) {
-    return m.renderRouteComponent;
-  }).filter(function (f) {
-    return f;
-  });
+  if (process.env.NODE_ENV !== 'production') {
+    middlewares.forEach(function (middleware, index) {
+      process.env.NODE_ENV !== 'production' ? (0, _routerWarning2.default)(middleware.renderRouterContext || middleware.renderRouteComponent, 'The middleware specified at index ' + index + ' does not appear to be ' + 'a valid React Router middleware.') : void 0;
+    });
+  }
+
+  var withContext = middlewares.map(function (middleware) {
+    return middleware.renderRouterContext;
+  }).filter(Boolean);
+  var withComponent = middlewares.map(function (middleware) {
+    return middleware.renderRouteComponent;
+  }).filter(Boolean);
+
   var makeCreateElement = function makeCreateElement() {
     var baseCreateElement = arguments.length <= 0 || arguments[0] === undefined ? _react.createElement : arguments[0];
     return function (Component, props) {
@@ -17208,7 +17217,9 @@ exports.default = function () {
 };
 
 module.exports = exports['default'];
-},{"./RouterContext":113,"react":273}],118:[function(require,module,exports){
+}).call(this,require('_process'))
+
+},{"./RouterContext":113,"./routerWarning":132,"_process":83,"react":273}],118:[function(require,module,exports){
 'use strict';
 
 exports.__esModule = true;
@@ -18658,6 +18669,7 @@ module.exports = exports['default'];
 }).call(this,require('_process'))
 
 },{"./createTransitionManager":122,"./routerWarning":132,"_process":83,"history/lib/useQueries":68}],135:[function(require,module,exports){
+(function (process){
 'use strict';
 
 exports.__esModule = true;
@@ -18665,6 +18677,10 @@ exports.__esModule = true;
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 exports.default = withRouter;
+
+var _invariant = require('invariant');
+
+var _invariant2 = _interopRequireDefault(_invariant);
 
 var _react = require('react');
 
@@ -18682,13 +18698,33 @@ function getDisplayName(WrappedComponent) {
   return WrappedComponent.displayName || WrappedComponent.name || 'Component';
 }
 
-function withRouter(WrappedComponent) {
+function withRouter(WrappedComponent, options) {
+  var withRef = options && options.withRef;
+
   var WithRouter = _react2.default.createClass({
     displayName: 'WithRouter',
 
     contextTypes: { router: _PropTypes.routerShape },
+    propTypes: { router: _PropTypes.routerShape },
+
+    getWrappedInstance: function getWrappedInstance() {
+      !withRef ? process.env.NODE_ENV !== 'production' ? (0, _invariant2.default)(false, 'To access the wrapped instance, you need to specify ' + '`{ withRef: true }` as the second argument of the withRouter() call.') : (0, _invariant2.default)(false) : void 0;
+
+      return this.wrappedInstance;
+    },
     render: function render() {
-      return _react2.default.createElement(WrappedComponent, _extends({}, this.props, { router: this.context.router }));
+      var _this = this;
+
+      var router = this.props.router || this.context.router;
+      var props = _extends({}, this.props, { router: router });
+
+      if (withRef) {
+        props.ref = function (c) {
+          _this.wrappedInstance = c;
+        };
+      }
+
+      return _react2.default.createElement(WrappedComponent, props);
     }
   });
 
@@ -18698,7 +18734,9 @@ function withRouter(WrappedComponent) {
   return (0, _hoistNonReactStatics2.default)(WithRouter, WrappedComponent);
 }
 module.exports = exports['default'];
-},{"./PropTypes":107,"hoist-non-react-statics":70,"react":273}],136:[function(require,module,exports){
+}).call(this,require('_process'))
+
+},{"./PropTypes":107,"_process":83,"hoist-non-react-statics":70,"invariant":71,"react":273}],136:[function(require,module,exports){
 /**
  * Copyright 2013-present, Facebook, Inc.
  * All rights reserved.

@@ -31,6 +31,7 @@ class Profile extends React.Component {
   handleChangePassword(event) {
     event.preventDefault();
     this.props.dispatch(changePassword(this.state.password, this.state.confirm, this.props.token));
+    this.setState({password: '', confirm: ''});
   }
 
   handleDeleteAccount(event) {

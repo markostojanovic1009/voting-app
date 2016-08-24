@@ -16,12 +16,16 @@ exports.up = function(knex, Promise) {
             table.string('google');
             table.string('github');
             table.timestamps();
+        }).createTable('polls', function(table) {
+            table.increments();
+            table.integer('user_id').references('id').inTable('users');
+            table.string('title').notNullable();
         })
     ]);
 };
 
 exports.down = function(knex, Promise) {
     return Promise.all([
-        knex.schema.dropTable('users')
-    ])
+        knex.schema.dropTable('polls').dropTable('users')
+    ]);
 };

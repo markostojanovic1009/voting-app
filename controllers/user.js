@@ -108,7 +108,7 @@ exports.accountPut = function(req, res, next) {
     }
 
     if('password' in req.body) {
-        User.changePassword(req.user.id, req.body.old_password, req.body.password).then(() => {
+        User.changePassword(req.user.id, req.body.password).then(() => {
             res.send({ msg: 'Your password has been changed.' });
         }).catch((error) => {
             res.status(401).send(error);
