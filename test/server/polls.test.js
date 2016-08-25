@@ -82,6 +82,19 @@ describe('Poll Model', () => {
       });
     };
 
+    describe('getAllPolls', () => {
+        it('should return all existing polls', () => {
+            return expect(
+                createUser().then(() => {
+                    return knex('polls').insert([{user_id: 1, title: "Poll 1"}, {user_id: 1, title: "Poll 2"}]);
+                }).then(() => {
+                    return Poll.getAllPolls();
+                })
+            ).to.eventually.have.lengthOf(2);
+        });
+
+    });
+
     describe('addPollOptions', () => {
 
         it('should add new options to the poll', () => {

@@ -47,6 +47,18 @@ const Poll = {
         });
     },
 
+    getAllPolls() {
+        return new Promise((resolve, reject) => {
+
+            knex.select('id', 'title').from('polls').then((result) => {
+                resolve(result);
+            }).catch((error) => {
+                reject(genericMessage);
+            });
+
+        });
+    },
+
     addPollOptions(poll_id, pollOptions) {
         return new Promise((resolve, reject) => {
             if (!Array.isArray(pollOptions))
