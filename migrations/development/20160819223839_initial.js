@@ -24,12 +24,20 @@ exports.up = function(knex, Promise) {
             table.increments();
             table.string('text');
             table.integer('poll_id').references('id').inTable('polls');
+        }).createTable('votes', function(table) {
+            table.increments();
+            table.integer('poll_option_id').references('id').inTable('poll_options');
+            table.integer('user_id').references('id').inTable('users');
+            table.string('ip_address');
         })
     ]);
 };
 
 exports.down = function(knex, Promise) {
     return Promise.all([
-        knex.schema.dropTableIfExists('poll_options').dropTable('polls').dropTable('users')
+        knex.schema.dropTableIfExists('votes')
+            .dropTableIfExists('poll_options')
+            .dropTableIfExists('polls')
+            .dropTableIfExists('users')
     ]);
 };

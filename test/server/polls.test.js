@@ -109,4 +109,82 @@ describe('Poll Model', () => {
 
     });
 
+    const createPollWithOptions = () => {
+        return createPoll().then(([poll]) => {
+            return knex('poll_options').insert([
+                {poll_id: poll.id, text: 'Poll Option 1'},
+                {poll_id: poll.id, text: 'Poll Option 2'}
+                ]).returning(['id']);
+        });
+    };
+    describe('voteFor', () => {
+        it('should add a new vote', () => {
+            return expect(
+                createPollWithOptions().then((pollOptionsIds) => {
+                    return Poll.voteFor(pollOptionsIds[0].id, 1, '127.0.0.1');
+                }).then(() => {
+                    return knex('votes').count('poll_option_id');
+                }).then(([result]) => {
+                    return parseInt(result.count);
+                })
+            ).to.eventually.deep.equal(1);
+        });
+
+        it('should return an error if user_id is wrong', () => {
+
+            return expect(
+                createPollWithOptions().then((pollOptionsIds) => {
+                    return Poll.voteFor(pollOptionsIds[0].id, 100, '127.0.0.1');
+                }).then(() => {
+                    return knex('votes').count('poll_option_id');
+                }).then(([result]) => {
+                    return parseInt(result.count);
+                })
+            ).to.be.rejected.and.eventually.deep.equal({msg: 'Wrong user id.'});
+
+        });
+
+        it('should return an error if poll_id is wrong', () => {
+
+            return expect(
+                createPollWithOptions().then((pollOptionsIds) => {
+                    return Poll.voteFor(100, 1, '127.0.0.1');
+                }).then(() => {
+                    return knex('votes').count('poll_option_id');
+                }).then(([result]) => {
+                    return parseInt(result.count);
+                })
+            ).to.be.rejected.and.eventually.deep.equal({msg: 'Wrong poll option id.'});
+
+        });
+
+        it('should return an error if a registered user tries to vote twice', () => {
+
+            let pollOptions;
+            return expect(
+                createPollWithOptions().then((pollOptionIds) => {
+                    pollOptions = pollOptionIds;
+                    return Poll.voteFor(pollOptionIds[0].id, 1, null);
+                }).then(() => {
+                    return Poll.voteFor(pollOptions[0].id, 1, null);
+                })
+            ).to.be.rejected.and.eventually.deep.equal({msg: "You cannot vote more than once."});
+
+        });
+
+        it('should return an error if an unregistered user tries to vote twice', () => {
+
+            let pollOptions;
+            return expect(
+                createPollWithOptions().then((pollOptionIds) => {
+                    pollOptions = pollOptionIds;
+                    return Poll.voteFor(pollOptionIds[0].id, null, '127.0.0.1');
+                }).then(() => {
+                    return Poll.voteFor(pollOptions[0].id, null, '127.0.0.1');
+                })
+            ).to.be.rejected.and.eventually.deep.equal({msg: "You cannot vote more than once."});
+
+        });
+    });
+
 });
