@@ -187,4 +187,37 @@ describe('Poll Model', () => {
         });
     });
 
+    describe('getPollVotes', () => {
+
+        it('should return the right number of votes for each poll option', () => {
+            return expect(
+                    createPollWithOptions().then((pollOptionIds) => {
+                        let ipAddress = '2714914';
+                        let insertArray = [];
+                        for(let i = 0; i < 10; i++ ) {
+                            insertArray.push({
+                                poll_option_id: pollOptionIds[i % 2].id,
+                                user_id: null,
+                                ip_address: ipAddress
+                            });
+                            ipAddress += i;
+                        }
+                        return knex('votes').insert(insertArray)
+                    }).then(() => {
+                        return Poll.getPollVotes(1)
+                    })
+            ).to.eventually.deep.equal([
+                {text: 'Poll Option 1', poll_option_id: 1, count: 5},
+                {text: 'Poll Option 2', poll_option_id: 2, count: 5}
+            ]);
+        });
+
+        it('should return an empty array if poll id is wrong', () => {
+            return expect(
+                Poll.getPollVotes(100)
+            ).to.eventually.deep.equal([]);
+        });
+
+    });
+
 });

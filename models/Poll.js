@@ -97,6 +97,24 @@ const Poll = {
                 });
 
         });
+    },
+
+    getPollVotes(poll_id) {
+        return new Promise((resolve, reject) => {
+
+            knex.select('poll_option_id', 'text').count('poll_option_id').from(function() {
+                this.select('id', 'text').from('poll_options').where('poll_id', poll_id).as('options')
+                })
+                .innerJoin('votes', 'votes.poll_option_id', 'options.id')
+                .groupBy('poll_option_id', 'options.text')
+                .then((result) => {
+                    resolve(result.map( (item) => { return {...item, count: parseInt(item.count)}; }));
+                })
+                .catch((error) => {
+                    reject(error);
+                });
+
+        });
     }
 
 };
