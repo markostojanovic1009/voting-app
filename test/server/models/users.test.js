@@ -1,9 +1,9 @@
-const knex = require('../../config/database');
+const knex = require('../../../config/database');
 const chai = require('chai');
 const bcrypt = require('bcryptjs');
 const expect = chai.expect;
 
-import User from '../../models/User';
+import User from '../../../models/User';
 
 chai.use(require('chai-as-promised'));
 

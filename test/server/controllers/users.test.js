@@ -1,9 +1,9 @@
-const knex = require('../../config/database');
+const knex = require('../../../config/database');
 const chai = require('chai');
 const expect = chai.expect;
 const bcrypt = require('bcryptjs');
 const request = require('supertest-as-promised');
-const server = require('../../server');
+const server = require('../../../server');
 const moment = require('moment');
 const jwt = require('jsonwebtoken');
 
