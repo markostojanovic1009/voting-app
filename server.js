@@ -27,6 +27,7 @@ const User = require('./models/User').default;
 // Controllers
 var userController = require('./controllers/user');
 var contactController = require('./controllers/contact');
+const pollController = require('./controllers/poll');
 
 // React and Server-Side Rendering
 var routes = require('./app/routes');
@@ -86,11 +87,16 @@ app.get('/auth/twitter/callback', userController.authTwitterCallback);
 app.post('/auth/github', userController.authGithub);
 app.get('/auth/github/callback', userController.authGithubCallback);
 
+
+app.get('/api/polls', pollController.getAllPolls);
+
+
 // React server rendering
 app.use(function(req, res) {
   var initialState = {
     auth: { token: req.cookies.token, user: req.user },
-    messages: {}
+    messages: {},
+    polls: { isFetching: false, items: [] }
   };
 
   var store = configureStore(initialState);
