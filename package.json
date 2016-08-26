@@ -5,16 +5,16 @@
   "scripts": {
     "build": "gulp build",
     "build:production": "gulp build --production",
+    "custom-bash": "./config/bash.sh",
     "deploy": "npm test && git push heroku master",
     "knex": "knex",
     "postinstall": "npm run build:production",
     "start": "node server.js",
     "test": "npm run test:client && npm run test:server",
     "test:client": "mocha test/client --recursive --compilers js:babel-register",
-    "test:controllers": "NODE_ENV=test mocha test/server/controllers.test.js --compilers js:babel-register",
-    "test:models": "NODE_ENV=test mocha test/server/models.test.js --compilers js:babel-register",
-    "test:polls-model": "NODE_ENV=test mocha test/server/polls.test.js --compilers js:babel-register",
-    "test:server": "mocha test/server --recursive --compilers js:babel-register",
+    "test:controllers": "NODE_ENV=test mocha test/server/controllers --recursive --compilers js:babel-register",
+    "test:models": "NODE_ENV=test mocha test/server/models --recursive --compilers js:babel-register",
+    "test:server": "NODE_ENV=test mocha test/server --recursive --compilers js:babel-register",
     "watch": "gulp"
   },
   "dependencies": {
