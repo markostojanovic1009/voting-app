@@ -83,14 +83,27 @@ describe('Poll Model', () => {
     };
 
     describe('getAllPolls', () => {
-        it('should return all existing polls', () => {
+
+        it('should return all existing polls with at least one option', () => {
+            return expect(
+                createUser().then(() => {
+                    return knex('polls').insert([{user_id: 1, title: "Poll 1"}, {user_id: 1, title: "Poll 2"}]);
+                }).then(() => {
+                    return knex('poll_options').insert([{poll_id: 1, text: 'Option 1'}, {poll_id: 2, text: 'Option 2'}]);
+                }).then(() => {
+                    return Poll.getAllPolls();
+                })
+            ).to.eventually.have.lengthOf(2);
+        });
+
+        it('should not return polls with 0 options', () => {
             return expect(
                 createUser().then(() => {
                     return knex('polls').insert([{user_id: 1, title: "Poll 1"}, {user_id: 1, title: "Poll 2"}]);
                 }).then(() => {
                     return Poll.getAllPolls();
                 })
-            ).to.eventually.have.lengthOf(2);
+            ).to.eventually.have.lengthOf(0);
         });
 
     });
