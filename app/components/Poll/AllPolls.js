@@ -15,7 +15,11 @@ class AllPolls extends React.Component {
 
     render() {
         return(
-            <PollList polls={this.props.polls} />
+            <div className="row">
+                <div className="small-12 medium-8 medium-offset-2">
+                    <PollList polls={this.props.polls} />
+                </div>
+            </div>
         )
     }
 

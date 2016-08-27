@@ -19,20 +19,30 @@ exports.seed = function(knex, Promise) {
         let pollArray = new Array(10);
         for(let i = 0; i < pollArray.length; i++) {
             pollArray[i] = {
-                user_id: userIdArray[Math.floor(Math.random() * 3)].id,
+                user_id: userIdArray[Math.floor(Math.random() * 3)],
                 title: `Poll Number ${i + 1}`
             }
         }
         return knex('polls').insert(pollArray).returning('id');
     }).then((pollIdArray) => {
         let pollOptionsArray = new Array(Math.floor(Math.random() * 20 + 20));
-        for(let i = 0; i < pollOptionsArray; i++ ) {
+        for(let i = 0; i < pollOptionsArray.length; i++ ) {
             const pollNumber = Math.floor(Math.random() * 10);
             pollOptionsArray[i] = {
-                poll_id: pollIdArray[pollNumber].id,
+                poll_id: pollIdArray[pollNumber],
                 text: `Option number ${i + 1} from Poll Number ${pollNumber + 1}`
             }
         }
-        return knex('poll_options').insert(pollOptionsArray);
+        return knex('poll_options').insert(pollOptionsArray).returning('id');
+    }).then((pollOptionsIds) => {
+        let votesArray = new Array(300);
+        for(let i = 0; i < 300; i++) {
+            votesArray[i] = {
+                poll_option_id: pollOptionsIds[Math.floor(Math.random() * pollOptionsIds.length)],
+                user_id: null,
+                ip_address: i.toString()
+            }
+        }
+        return knex('votes').insert(votesArray);
     });
 };

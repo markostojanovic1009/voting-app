@@ -1,5 +1,6 @@
 @import "settings";
 @import "vendor/foundation/foundation";
+@import "all_polls.scss";
 
 @include foundation-global-styles;
 @include foundation-grid;
@@ -64,6 +65,7 @@ footer {
   height: 50px;
   width: 100%;
   line-height: 50px;
+  background-color: #262626;
 }
 
 .text-danger,
