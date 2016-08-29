@@ -89,6 +89,7 @@ app.get('/auth/github/callback', userController.authGithubCallback);
 
 
 app.get('/api/polls', pollController.getAllPolls);
+app.get('/api/poll/:poll_id', pollController.getPoll);
 
 
 // React server rendering
