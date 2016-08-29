@@ -1,13 +1,12 @@
-export function getAllPolls() {
+function sendRequest(route) {
     return (dispatch) => {
         dispatch({
-            type: 'FETCH_POLLS',
+            type: 'FETCH_POLLS'
         });
-        return fetch('/api/polls')
+        return fetch(route)
             .then((response) => {
-                console.log(response);
                 return response.json().then((json) => {
-                    if(response.ok) {
+                    if (response.ok) {
                         dispatch({
                             type: 'RECEIVE_POLLS_SUCCESS',
                             polls: json
@@ -19,6 +18,14 @@ export function getAllPolls() {
                         });
                     }
                 });
-            });
-    }
+            })
+    };
+}
+
+export function getAllPolls() {
+    return sendRequest('/api/polls');
+}
+
+export  function getPoll(pollId) {
+    return sendRequest(`/api/poll/${pollId}`);
 }
