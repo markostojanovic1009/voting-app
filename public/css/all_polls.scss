@@ -3,13 +3,13 @@
   ul {
     width: 100%;
     list-style: none;
-
+    margin: 0;
   }
   margin-top: 20px;
 }
 
 .poll-list-item {
-  margin: 20px;
+  margin: 20px 0;
   width: 100%;
   padding: 20px;
   background-color: #2B2929;
@@ -31,8 +31,12 @@
     color: #f0f0f0;
     background-color: #5EE820;
   }
+  margin-top: 10px;
   display: inline-block;
-  float: right;
+  @include breakpoint(medium) {
+    float: right;
+    margin-top: 0;
+  }
 }
 
 .poll-list-title {
