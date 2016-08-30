@@ -140,7 +140,9 @@ const Poll = {
         return new Promise((resolve, reject) => {
 
             knex.select('user_id', 'ip_address').from('votes').where(function() {
-                this.where('user_id', user_id).orWhere('ip_address', ip_address);
+                this.where(function() {
+                    this.whereNotNull('user_id').andWhere('user_id', user_id);
+                }).orWhere('ip_address', ip_address);
             }).andWhere('poll_option_id', poll_option_id)
                 .then((userVotes) => {
                     if (userVotes.length > 0) {

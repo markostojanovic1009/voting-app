@@ -18,10 +18,27 @@ exports.getPoll = function (req, res) {
     }
 
     Poll.getPollVotes(poll_id).then((poll) => {
-        console.log(poll);
         res.send(poll)
     }).catch((error) => {
         res.status(400).send(error);
     })
+
+};
+
+exports.vote = function (req, res) {
+    const poll_id = req.params.poll_id;
+    const { user_id, poll_option_id } = req.body;
+
+    if(!poll_option_id) {
+        res.status(400).send({
+            msg: 'poll_option_id missing.'
+        });
+    }
+
+    Poll.voteFor(poll_option_id,user_id, req.ip).then(() => {
+        res.sendStatus(200);
+    }).catch((error) => {
+        res.status(400).send(error);
+    });
 
 };
