@@ -17,12 +17,14 @@ export default function messages(state = {}, action) {
     case 'CHANGE_PASSWORD_SUCCESS':
     case 'RESET_PASSWORD_SUCCESS':
     case 'CONTACT_FORM_SUCCESS':
+    case 'VOTE_SUCCESS':
       return {
         success: action.messages
       };
     case 'FORGOT_PASSWORD_SUCCESS':
     case 'DELETE_ACCOUNT_SUCCESS':
     case 'UNLINK_SUCCESS':
+    case 'VOTE_FAILURE':
       return {
         info: action.messages
       };

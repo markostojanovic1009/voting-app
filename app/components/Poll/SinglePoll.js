@@ -1,12 +1,16 @@
 import React from 'react';
 import {browserHistory } from 'react-router';
 import {connect} from 'react-redux';
-import { getPoll } from '../../actions/poll_actions';
+import { getPoll, vote } from '../../actions/poll_actions';
+import Messages from '../Messages';
 
 class SinglePoll extends React.Component {
 
     constructor() {
         super();
+        this.state = {
+            chosenOptionId: 0
+        };
     }
 
     componentDidMount() {
@@ -66,6 +70,15 @@ class SinglePoll extends React.Component {
             });
         }
     }
+
+    handleSelectChange(event) {
+        this.setState({ chosenOptionId: event.target.value });
+    }
+
+    handleVoteButtonClick(pollId) {
+        const {user} = this.props;
+        this.props.dispatch(vote(pollId, this.state.chosenOptionId, user ? user.id : null));
+    }
     
     render() {
         const poll = this.props.polls.items[0];
@@ -76,22 +89,27 @@ class SinglePoll extends React.Component {
         const optionPanel = poll ?
             <div>
                 <div className="single-poll-title">{poll.title}</div>
-                <div className="options">
-                    <ul>
-                        { poll.options.map((item) => {
-                            return (
-                                <li key={item.poll_option_id}>
-                                    {item.text}
-                                </li>
+                <div className="single-poll-options">
+                    <select className="single-poll-select" onChange={this.handleSelectChange.bind(this)}
+                            value={this.state.chosenOptionId}>
+                        <option value={0}>Select an option</option>
+                        {poll.options.map((option) => {
+                            return(
+                                <option key={option.poll_option_id} value={option.poll_option_id}>{option.text}</option>
                             );
-                        }) }
-                    </ul>
+                        })};
+                    </select>
+                    <button className="single-poll-vote button"
+                            onClick={this.handleVoteButtonClick.bind(this, poll.id)} >Vote</button>
                 </div>
             </div> : null;
         return(
             <div className="row">
                 <div className="small-12">
                     {optionPanel}
+                </div>
+                <div className="small-12 medium-4 medium-offset-4">
+                    <Messages messages={this.props.messages} />
                 </div>
                 <div className="small-12">
                     {chart}
@@ -105,7 +123,8 @@ class SinglePoll extends React.Component {
 const mapStateToProps = (state) => {
     return {
         messages: state.messages,
-        polls: state.polls
+        polls: state.polls,
+        user: state.user
     };
 };
 
