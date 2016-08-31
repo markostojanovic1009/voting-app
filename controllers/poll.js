@@ -35,7 +35,7 @@ exports.vote = function (req, res) {
         });
     }
 
-    Poll.voteFor(poll_option_id,user_id, req.ip).then(() => {
+    Poll.voteFor(poll_id, poll_option_id, user_id, req.ip).then(() => {
         res.sendStatus(200);
     }).catch((error) => {
         res.status(400).send(error);

@@ -34,40 +34,49 @@ export  function getPoll(pollId) {
 
 export function vote(pollId, pollOptionId, userId) {
     return (dispatch) => {
-        return fetch(`/api/poll/${pollId}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
+        if (pollOptionId) {
+            return fetch(`/api/poll/${pollId}`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
                     poll_option_id: pollOptionId,
                     user_id: userId
                 })
             })
-            .then((response) => {
-                if(response.ok) {
-                    dispatch({
-                        type: 'VOTE_SUCCESS',
-                        poll: {
-                            id: pollId,
-                            option: {
-                                id: pollOptionId
-                            }
-                        },
-                        messages: [{
-                            msg: 'Thank you for voting.'
-                        }]
-                    });
-                } else {
-                    return response.json();
-                }
+                .then((response) => {
+                    if (response.ok) {
+                        dispatch({
+                            type: 'VOTE_SUCCESS',
+                            poll: {
+                                id: pollId,
+                                option: {
+                                    id: pollOptionId
+                                }
+                            },
+                            messages: [{
+                                msg: 'Thank you for voting.'
+                            }]
+                        });
+                        return null;
+                    } else {
+                        return response.json();
+                    }
+                })
+                .then((json) => {
+                    if (json) {
+                        dispatch({
+                            type: 'VOTE_FAILURE',
+                            messages: Array.isArray(json) || [json]
+                        });
+                    }
+                });
+        } else {
+            dispatch({
+                type: 'VOTE_FAILURE',
+                messages: [{
+                    msg: 'Please select an option.'
+                }]
             })
-            .then((json) => {
-                console.log(json);
-                if(json) {
-                    dispatch({
-                        type: 'VOTE_FAILURE',
-                        messages: Array.isArray(json) || [json]
-                    });
-                }
-            });
-    };
+        }
+    }
 }

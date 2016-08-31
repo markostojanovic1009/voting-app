@@ -136,14 +136,19 @@ const Poll = {
         });
     },
 
-    voteFor(poll_option_id, user_id, ip_address) {
+    voteFor(poll_id, poll_option_id, user_id, ip_address) {
         return new Promise((resolve, reject) => {
 
-            knex.select('user_id', 'ip_address').from('votes').where(function() {
-                this.where(function() {
-                    this.whereNotNull('user_id').andWhere('user_id', user_id);
-                }).orWhere('ip_address', ip_address);
-            }).andWhere('poll_option_id', poll_option_id)
+            knex.select('user_id', 'ip_address').from(function() {
+                this.select('id as poll_option_id').from('poll_options').where('poll_id', poll_id).as('options');
+            }).innerJoin('votes', 'votes.poll_option_id', 'options.poll_option_id')
+                .where(function() {
+
+                    this.where(function() {
+                        this.whereNotNull('user_id').andWhere('user_id', user_id);
+                    }).orWhere('ip_address', ip_address);
+
+                })
                 .then((userVotes) => {
                     if (userVotes.length > 0) {
                         throw {
@@ -177,7 +182,7 @@ const Poll = {
             let options = [];
             knex.select('poll_option_id', 'text').count('poll_option_id').from(function() {
                 this.select('id', 'text').from('poll_options').where('poll_id', poll_id).as('options')
-                })
+            })
                 .leftOuterJoin('votes', 'votes.poll_option_id', 'options.id')
                 .groupBy('poll_option_id', 'options.text')
                 .then((result) => {
