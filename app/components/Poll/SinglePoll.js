@@ -21,8 +21,9 @@ class SinglePoll extends React.Component {
         this.props.dispatch(getPoll(poll_id));
     }
 
-    componentDidUpdate() {
-        this.drawChart();
+    componentDidUpdate(prevProps, prevState) {
+        if(prevState.chosenOptionId == this.state.chosenOptionId)
+            this.drawChart();
     }
 
     drawChart() {
@@ -72,7 +73,7 @@ class SinglePoll extends React.Component {
     }
 
     handleSelectChange(event) {
-        this.setState({ chosenOptionId: event.target.value });
+        this.setState({ chosenOptionId: parseInt(event.target.value) });
     }
 
     handleVoteButtonClick(pollId) {
