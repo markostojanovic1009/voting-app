@@ -17,8 +17,9 @@ class SinglePoll extends React.Component {
         const { poll_id } = this.props.params;
         if(!Number.isInteger(parseInt(poll_id))) {
             browserHistory.push('/*');
+        } else {
+            this.props.dispatch(getPoll(poll_id));
         }
-        this.props.dispatch(getPoll(poll_id));
     }
 
     componentDidUpdate(prevProps, prevState) {
