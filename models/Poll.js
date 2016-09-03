@@ -80,7 +80,7 @@ const Poll = {
                                 options: result[i].pollOptionId ? [{
                                     pollOptionId: result[i].pollOptionId,
                                     text: result[i].text,
-                                    vote_count: parseInt(result[i].vote_count)
+                                    vote_count: result[i].vote_count ? parseInt(result[i].vote_count) : 0
                                 }] : []
                             });
                             lastInsertedIndex++;
@@ -89,7 +89,7 @@ const Poll = {
                             // Just insert the new Poll Option into the options array.
                             groupedResults[lastInsertedIndex].options.push({
                                 pollOptionId: result[i].pollOptionId,
-                                vote_count: parseInt(result[i].vote_count),
+                                vote_count: result[i].vote_count ? parseInt(result[i].vote_count) : 0,
                                 text: result[i].text
                             });
                         }
@@ -105,7 +105,9 @@ const Poll = {
                             ...item,
                             total,
                             options: item.options.map((option) => {
-                                return {...option, percentage: (option.vote_count / total * 100).toFixed(2)};
+                                return {
+                                    ...option,
+                                    percentage: total > 0 ? (option.vote_count / total * 100).toFixed(2) : 'No votes.'};
                             })
                         };
                     });
@@ -180,11 +182,11 @@ const Poll = {
     getPollVotes(poll_id) {
         return new Promise((resolve, reject) => {
             let options = [];
-            knex.select('poll_option_id', 'text').count('poll_option_id').from(function() {
+            knex.select('options.id as poll_option_id', 'text').count('poll_option_id').from(function() {
                 this.select('id', 'text').from('poll_options').where('poll_id', poll_id).as('options')
             })
                 .leftOuterJoin('votes', 'votes.poll_option_id', 'options.id')
-                .groupBy('poll_option_id', 'options.text')
+                .groupBy('options.id', 'options.text')
                 .then((result) => {
                     options = result.map( (item) => { return {...item, count: parseInt(item.count)}; });
                     return knex.select('id', 'title').from('polls').where('id', poll_id);
