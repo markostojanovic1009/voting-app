@@ -182,29 +182,32 @@ const Poll = {
     getPollVotes(poll_id) {
         return new Promise((resolve, reject) => {
             let options = [];
-            knex.select('options.id as poll_option_id', 'text').count('poll_option_id').from(function() {
-                this.select('id', 'text').from('poll_options').where('poll_id', poll_id).as('options')
-            })
-                .leftOuterJoin('votes', 'votes.poll_option_id', 'options.id')
-                .groupBy('options.id', 'options.text')
-                .then((result) => {
-                    options = result.map( (item) => { return {...item, count: parseInt(item.count)}; });
-                    return knex.select('id', 'title').from('polls').where('id', poll_id);
+            let owner_id = null;
+            knex.select('user_id').from('polls').where('id', poll_id).then(([result]) => {
+                owner_id = result.user_id;
+                return knex.select('options.id as poll_option_id', 'text').count('poll_option_id').from(function () {
+                    this.select('id', 'text').from('poll_options').where('poll_id', poll_id).as('options')
                 })
-                .then(([poll]) => {
-                    const total = options.reduce((previous, item) => {
-                        return previous + item.count;
-                    }, 0);
-                    resolve([{
-                        ...poll,
-                        total,
-                        options
-                    }]);
-                })
-                .catch((error) => {
-                    reject(genericMessage);
+                    .leftOuterJoin('votes', 'votes.poll_option_id', 'options.id')
+                    .groupBy('options.id', 'options.text');
+            }).then((result) => {
+                options = result.map((item) => {
+                    return {...item, count: parseInt(item.count)};
                 });
-
+                return knex.select('id', 'title').from('polls').where('id', poll_id);
+            }).then(([poll]) => {
+                const total = options.reduce((previous, item) => {
+                    return previous + item.count;
+                }, 0);
+                resolve([{
+                    ...poll,
+                    total,
+                    options,
+                    owner_id
+                }]);
+            }).catch((error) => {
+                reject(genericMessage);
+            });
         });
     }
 
