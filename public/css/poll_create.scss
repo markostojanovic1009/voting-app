@@ -1,0 +1,62 @@
+@import 'https://fonts.googleapis.com/css?family=Fugaz+One';
+.add-options-button {
+  margin-left: -30px;
+  @include breakpoint(medium) {
+    margin-left: 20px;
+  }
+  background-color: crimson;
+  font-size: 3em;
+  font-weight: bold;
+  width: 60px;
+  height: 60px;
+  color: #f0f0f0;
+  border-radius: 30px;
+  -webkit-box-shadow: 8px 10px 14px 2px rgba(0,0,0,0.69);
+  -moz-box-shadow: 8px 10px 14px 2px rgba(0,0,0,0.69);
+  box-shadow: 8px 10px 14px 2px rgba(0,0,0,0.69);
+  &:hover{
+    background: #dd4b39;
+  }
+  &:focus {
+    outline: none;
+  }
+}
+
+.poll-create-header {
+  text-align: center;
+  font-size: 1.8em;
+  font-family: 'Fugaz One', cursive;
+}
+
+input[type=text].poll-create-option-text {
+  margin-top: 10px;
+  border: none;
+  border-bottom: 2px solid lightgray;
+  &:focus {
+    border-bottom: 2px solid darkgray;
+  }
+}
+
+input[type=text].poll-create-title {
+  border: none;
+  border-bottom: 3px solid lightgray;
+  font-size: 1.3em;
+  padding: 10px;
+  &:focus {
+    border: none;
+    border-bottom: 3px solid darkgray;
+    outline: none;
+  }
+}
+
+.create-poll-button {
+  margin-top: 30px;
+  background-color: #157539;
+  color: #f0f0f0;
+  padding: 15px;
+  font-size: 1.2em;
+  &:focus, &:hover {
+    background-color: #00BA2B;
+    outline: none;
+  }
+}
