@@ -89,6 +89,7 @@ app.get('/auth/github/callback', userController.authGithubCallback);
 
 
 app.get('/api/polls', pollController.getAllPolls);
+app.post('/api/polls', userController.ensureAuthenticated, pollController.createPoll);
 app.get('/api/poll/:poll_id', pollController.getPoll);
 app.post('/api/poll/:poll_id', pollController.vote);
 
