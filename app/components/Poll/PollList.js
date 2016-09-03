@@ -1,5 +1,9 @@
 import React from 'react';
 import {Link} from 'react-router';
+
+function isNumeric(n) {
+    return !isNaN(parseFloat(n)) && isFinite(n);
+}
 class PollList extends React.Component {
     render() {
         const loading = this.props.polls.isFetching ?
@@ -22,7 +26,8 @@ class PollList extends React.Component {
                                         <p className="poll-option-text">
                                             {option.text}
                                             <span className="poll-option-percentage">
-                                                {`${option.percentage}%`}
+                                                {isNumeric(option.percentage) ? `${option.percentage}%`
+                                                    : option.percentage}
                                             </span>
                                         </p>
                                         <hr />

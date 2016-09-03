@@ -1,7 +1,7 @@
 import React from 'react';
 import {connect} from 'react-redux';
 const update = require('react-addons-update');
-//import { createPoll } from '../../actions/poll_actions';
+import { createPoll } from '../../actions/poll_actions';
 
 class PollCreate extends React.Component {
 
@@ -39,6 +39,12 @@ class PollCreate extends React.Component {
                 }]
             })
         });
+    }
+
+    createButtonClick(auth) {
+        const userId = auth.user ? auth.user.id : null;
+        const token = auth.token;
+        this.props.dispatch(createPoll(this.state.title, this.state.options, userId, token ));
     }
 
 
@@ -80,7 +86,8 @@ class PollCreate extends React.Component {
 
                 <div className="row">
                     <div className="small-4 medium-3 medium-offset-2 columns">
-                        <button className="create-poll-button">Create</button>
+                        <button className="create-poll-button"
+                            onClick={this.createButtonClick.bind(this, this.props.auth)}>Create</button>
                     </div>
                 </div>
 
@@ -93,6 +100,7 @@ class PollCreate extends React.Component {
 const mapStateToProps = (state) => {
     return {
         messages: state.messages,
+        auth: state.auth
     };
 };
 

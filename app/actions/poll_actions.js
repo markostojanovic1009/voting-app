@@ -1,3 +1,4 @@
+import {browserHistory} from 'react-router';
 function sendRequest(route, method) {
     return (dispatch) => {
         dispatch({
@@ -77,6 +78,55 @@ export function vote(pollId, pollOptionId, userId) {
                     msg: 'Please select an option.'
                 }]
             })
+        }
+    }
+}
+
+export function createPoll(title, options, userId, token) {
+    return (dispatch) => {
+
+        const errors = [];
+
+        if(!title.length) {
+            errors.push({
+                msg: 'Title cannot be empty.'
+            });
+        }
+
+        const filteredOptions = options.filter((option) => {
+            return option.text.length > 0;
+        });
+
+        if(!filteredOptions.length) {
+            errors.push({
+                msg: 'At least one option must be valid.'
+            });
+        }
+
+        if(errors.length > 0) {
+            return dispatch({
+                type: 'CREATE_POLL_FAILURE',
+                messages: errors
+            })
+        } else {
+            return fetch('/api/polls', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({title, options: filteredOptions, userId})
+            }).then((response) => {
+                return response.json().then((json) => {
+                    if (response.ok) {
+                        browserHistory.push(`/poll/${json.poll_id}`);
+                    } else {
+                        dispatch({
+                            type: 'CREATE_POLL_FAILURE'
+                        });
+                    }
+                });
+            });
         }
     }
 }
