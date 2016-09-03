@@ -2,6 +2,7 @@ import React from 'react';
 import {connect} from 'react-redux';
 const update = require('react-addons-update');
 import { createPoll } from '../../actions/poll_actions';
+import Messages from '../Messages';
 
 class PollCreate extends React.Component {
 
@@ -84,10 +85,17 @@ class PollCreate extends React.Component {
                     </div>
                 </div>
 
+
                 <div className="row">
                     <div className="small-4 medium-3 medium-offset-2 columns">
                         <button className="create-poll-button"
                             onClick={this.createButtonClick.bind(this, this.props.auth)}>Create</button>
+                    </div>
+                </div>
+
+                <div className="row">
+                    <div className="small-12 medium-4 medium-offset-2">
+                        <Messages messages={this.props.messages} />
                     </div>
                 </div>
 

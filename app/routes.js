@@ -39,7 +39,7 @@ export default function getRoutes(store) {
       <Route path="/forgot" component={Forgot} onEnter={skipIfAuthenticated} onLeave={clearMessages}/>
       <Route path='/reset/:token' component={Reset} onEnter={skipIfAuthenticated} onLeave={clearMessages}/>
       <Route path="/polls" component={AllPolls} onLeave={clearMessages} />
-      <Route path="/new" component={PollCreate} onLeave={clearMessages} />
+      <Route path="/new" component={PollCreate} onEnter={ensureAuthenticated} onLeave={clearMessages} />
       <Route path="/poll/:poll_id" component={SinglePoll} onLeave={clearMessages} />
       <Route path="*" component={NotFound} onLeave={clearMessages}/>
     </Route>
