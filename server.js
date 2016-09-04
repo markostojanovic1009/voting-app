@@ -92,6 +92,7 @@ app.get('/api/polls', pollController.getAllPolls);
 app.post('/api/polls', userController.ensureAuthenticated, pollController.createPoll);
 app.get('/api/poll/:poll_id', pollController.getPoll);
 app.post('/api/poll/:poll_id', pollController.vote);
+app.put('/api/poll/:poll_id', userController.ensureAuthenticated, pollController.updatePoll);
 
 
 // React server rendering

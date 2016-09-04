@@ -44,13 +44,24 @@ exports.vote = function (req, res) {
 };
 
 exports.createPoll = function(req, res) {
-    console.log(req.body);
     let newPollId = null;
     Poll.createPoll(req.body.userId, req.body.title).then((poll) => {
         newPollId = poll.id;
         return Poll.addPollOptions(poll.id, req.body.options);
     }).then((pollOptions) => {
         res.status(200).send({poll_id: newPollId});
+    }).catch((error) => {
+        console.log(error);
+        res.status(400).send(error);
+    });
+};
+
+exports.updatePoll = function (req, res) {
+    const poll_id = req.params.poll_id;
+    const options = req.body.options;
+    Poll.addPollOptions(poll_id, options).then((pollOptions) => {
+        console.log(pollOptions);
+        res.status(200).send(pollOptions);
     }).catch((error) => {
         console.log(error);
         res.status(400).send(error);
