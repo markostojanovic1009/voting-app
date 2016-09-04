@@ -93,6 +93,7 @@ app.post('/api/polls', userController.ensureAuthenticated, pollController.create
 app.get('/api/poll/:poll_id', pollController.getPoll);
 app.post('/api/poll/:poll_id', pollController.vote);
 app.put('/api/poll/:poll_id', userController.ensureAuthenticated, pollController.updatePoll);
+app.delete('/api/poll/:poll_id', userController.ensureAuthenticated, pollController.deletePoll);
 
 
 // React server rendering

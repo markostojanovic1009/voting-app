@@ -1,5 +1,7 @@
 import Poll from '../models/Poll';
 
+// TODO: Implement a way to verify that user is modifying the poll he has access to.
+
 exports.getAllPolls = function(req, res) {
     Poll.getAllPolls().then((polls) => {
         res.send(polls);
@@ -51,7 +53,6 @@ exports.createPoll = function(req, res) {
     }).then((pollOptions) => {
         res.status(200).send({poll_id: newPollId});
     }).catch((error) => {
-        console.log(error);
         res.status(400).send(error);
     });
 };
@@ -60,10 +61,18 @@ exports.updatePoll = function (req, res) {
     const poll_id = req.params.poll_id;
     const options = req.body.options;
     Poll.addPollOptions(poll_id, options).then((pollOptions) => {
-        console.log(pollOptions);
         res.status(200).send(pollOptions);
     }).catch((error) => {
-        console.log(error);
+        res.status(400).send(error);
+    });
+};
+
+exports.deletePoll = function (req, res) {
+    const poll_id = req.params.poll_id;
+
+    Poll.deletePoll(poll_id).then(() => {
+        res.sendStatus(204);
+    }).catch((error) => {
         res.status(400).send(error);
     });
 };
