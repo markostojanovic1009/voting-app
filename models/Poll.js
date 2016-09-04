@@ -209,6 +209,17 @@ const Poll = {
                 reject(genericMessage);
             });
         });
+    },
+
+    deletePoll(poll_id) {
+        return new Promise((resolve, reject) => {
+            return knex('polls').where('id', poll_id).del().then(() => {
+                resolve();
+            }).catch((error) => {
+                console.log(error);
+                reject(genericMessage);
+            });
+        });
     }
 
 };
