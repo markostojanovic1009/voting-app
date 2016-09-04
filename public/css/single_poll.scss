@@ -11,3 +11,9 @@
   margin: 0 0 10px 20px;
   font-size: 1.5em;
 }
+
+input[type=text].additional-option-text {
+  @include breakpoint(medium) {
+    margin-left: 10px;
+  }
+}

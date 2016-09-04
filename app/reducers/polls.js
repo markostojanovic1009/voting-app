@@ -32,6 +32,22 @@ export default function polls(state = initialState, action) {
                     }
                 })
             });
+        case 'UPDATE_POLL_SUCCESS':
+            const formatedOptions = action.pollOptions.map((option) => {
+                return {
+                    text: option.text,
+                    poll_option_id: option.id,
+                    count: 0
+                }
+            });
+            return Object.assign({}, state, {
+                items: state.items.map((item) => {
+                    return {
+                        ...item,
+                        options: [...item.options, ...formatedOptions]
+                    };
+                })
+            });
         case 'VOTE_FAILURE':
             return Object.assign({}, state);
         default:

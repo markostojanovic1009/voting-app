@@ -130,3 +130,38 @@ export function createPoll(title, options, userId, token) {
         }
     }
 }
+
+export function addOptions(poll_id, options, token) {
+    const filteredOptions = options.filter((option) => {
+        return option.text.length > 0;
+    });
+    return (dispatch) => {
+        return fetch(`/api/poll/${poll_id}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': "application/json",
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({options: filteredOptions})
+        }).then((response) => {
+            return response.json().then((json) => {
+                if(response.ok) {
+                    dispatch({
+                        type: 'UPDATE_POLL_SUCCESS',
+                        messages: [{
+                            msg: 'Poll updated successfully.'
+                        }],
+                        pollOptions: json
+                    });
+                } else {
+                    dispatch({
+                        type: 'UPDATE_POLL_FAILURE',
+                        messages: Array.isArray(json) ? json : [json]
+                    });
+                }
+            }).catch((error) => {
+                console.log(error);
+            });
+        });
+    }
+}

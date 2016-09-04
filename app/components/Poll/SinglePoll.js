@@ -1,7 +1,8 @@
 import React from 'react';
 import {browserHistory } from 'react-router';
 import {connect} from 'react-redux';
-import { getPoll, vote } from '../../actions/poll_actions';
+import update from 'react-addons-update';
+import { getPoll, vote, addOptions } from '../../actions/poll_actions';
 import Messages from '../Messages';
 
 class SinglePoll extends React.Component {
@@ -9,7 +10,11 @@ class SinglePoll extends React.Component {
     constructor() {
         super();
         this.state = {
-            chosenOptionId: 0
+            chosenOptionId: 0,
+            additionalOptions: [{
+                text: ''
+            }],
+            displayAdditionalInput: false
         };
     }
 
@@ -23,7 +28,8 @@ class SinglePoll extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        if(prevState.chosenOptionId == this.state.chosenOptionId)
+        if(prevState.chosenOptionId == this.state.chosenOptionId
+            && prevState.additionalOptions.length == this.state.additionalOptions.length)
             this.drawChart();
     }
 
@@ -81,13 +87,46 @@ class SinglePoll extends React.Component {
         const {user} = this.props;
         this.props.dispatch(vote(pollId, this.state.chosenOptionId, user ? user.id : null));
     }
-    
+
+    additionalOptionsTextChange(index, event) {
+        this.setState({
+            additionalOptions: update( this.state.additionalOptions, {
+                [index]: {
+                    $set: {
+                        text: event.target.value
+                    }
+                }
+            })
+        });
+    }
+
+    addOptionsTextInput() {
+        this.setState({
+            additionalOptions: update(this.state.additionalOptions, {
+                $push: [{
+                    text: ''
+                }]
+            })
+        });
+    }
+
+    displayAdditionalInput() {
+        this.setState({displayAdditionalInput: true});
+    }
+
+    updatePoll(poll_id) {
+        this.props.dispatch(addOptions(poll_id, this.state.additionalOptions, this.props.token));
+        this.setState({
+            additionalOptions: [{
+                text: ''
+            }]
+        });
+        this.setState({displayAdditionalInput: false});
+    }
+
     render() {
         const poll = this.props.polls.items[0];
-        const chart = (poll && poll.options.length === 0) ?
-            <div className="single-poll-no-votes">
-                Be the first one to vote!
-            </div> : <div id="chart"></div>;
+
         const optionPanel = poll ?
             <div>
                 <div className="single-poll-title">{poll.title}</div>
@@ -105,17 +144,78 @@ class SinglePoll extends React.Component {
                             onClick={this.handleVoteButtonClick.bind(this, poll.id)} >Vote</button>
                 </div>
             </div> : null;
+
+        const modifyPollControls = poll && this.props.user && poll.owner_id == this.props.user.id ?
+            <div className="modify-poll-controls">
+                { this.state.displayAdditionalInput ?
+                    <div>
+                        <div className="row">
+                            { this.state.additionalOptions.map((optionInput, index) => {
+                                return (
+                                    <div className="small-8 column"
+                                         key={index}>
+                                        <input type="text" value={optionInput.text}
+                                               className="additional-option-text"
+                                               placeholder="Option text"
+                                               onChange={this.additionalOptionsTextChange.bind(this, index)}/>
+                                    </div>
+                                );
+                            }) }
+                            <div className="small-4 column">
+                                <button className="button"
+                                        onClick={this.addOptionsTextInput.bind(this)}>+</button>
+                            </div>
+                        </div>
+
+                        <div className="small-4 column">
+                            <button className="info button"
+                                    onClick={this.updatePoll.bind(this, poll.id)}>Add options</button>
+                        </div>
+
+                        <div className="small-12 column">
+                            <button className="alert button">Delete Poll</button>
+                            <span>This action cannot be reverted.</span>
+                        </div>
+
+                    </div> :
+                    <div className="small-4 column">
+                        <button className="button"
+                                onClick={this.displayAdditionalInput.bind(this)}>Modify poll
+                        </button>
+                    </div>
+                }
+            </div> : null;
+
+        const chart = (poll && poll.options.length === 0) ?
+            <div className="single-poll-no-votes">
+                Be the first one to vote!
+            </div> : <div id="chart"></div>;
+
         return(
-            <div className="row">
-                <div className="small-12">
-                    {optionPanel}
+            <div>
+
+                <div className="row">
+                    <div className="small-12">
+                        {optionPanel}
+                    </div>
                 </div>
-                <div className="small-12 medium-4 medium-offset-4">
-                    <Messages messages={this.props.messages} />
+
+                <div className="row">
+                    {modifyPollControls}
                 </div>
-                <div className="small-12">
-                    {chart}
-                 </div>
+
+                <div className="row">
+                    <div className="small-12 medium-4 medium-offset-4">
+                        <Messages messages={this.props.messages} />
+                    </div>
+                </div>
+
+                <div className="row">
+                    <div className="small-12">
+                        {chart}
+                     </div>
+                </div>
+
             </div>
         )
     }
@@ -126,7 +226,8 @@ const mapStateToProps = (state) => {
     return {
         messages: state.messages,
         polls: state.polls,
-        user: state.user
+        user: state.auth.user,
+        token: state.auth.token
     };
 };
 

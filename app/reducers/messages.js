@@ -19,6 +19,7 @@ export default function messages(state = {}, action) {
     case 'RESET_PASSWORD_SUCCESS':
     case 'CONTACT_FORM_SUCCESS':
     case 'VOTE_SUCCESS':
+    case 'UPDATE_POLL_SUCCESS':
       return {
         success: action.messages
       };

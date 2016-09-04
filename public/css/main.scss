@@ -75,6 +75,12 @@ footer {
   color: map-get($foundation-palette, alert);
 }
 
+.row.row {
+  @include breakpoint(small only) {
+    margin: 0;
+  }
+}
+
 // Alerts
 // ------
 
