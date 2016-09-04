@@ -2,7 +2,7 @@ import React from 'react';
 import {browserHistory } from 'react-router';
 import {connect} from 'react-redux';
 import update from 'react-addons-update';
-import { getPoll, vote, addOptions } from '../../actions/poll_actions';
+import { getPoll, vote, addOptions, deletePoll } from '../../actions/poll_actions';
 import Messages from '../Messages';
 
 class SinglePoll extends React.Component {
@@ -28,9 +28,16 @@ class SinglePoll extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        if(prevState.chosenOptionId == this.state.chosenOptionId
-            && prevState.additionalOptions.length == this.state.additionalOptions.length)
+
+        const prevPollState = prevProps.polls.items[0];
+        const currentPollState = this.props.polls.items[0];
+
+        // Draw the chart when poll info is received initially.
+        // Only redraw if poll was updated, or if the user voted
+        if((!prevPollState && currentPollState) || (prevPollState && currentPollState && (prevPollState.options.length < currentPollState.options.length ||
+            prevPollState.total < currentPollState.total)))
             this.drawChart();
+
     }
 
     drawChart() {
@@ -124,6 +131,10 @@ class SinglePoll extends React.Component {
         this.setState({displayAdditionalInput: false});
     }
 
+    deletePoll(poll_id) {
+        this.props.dispatch(deletePoll(poll_id, this.props.token));
+    }
+
     render() {
         const poll = this.props.polls.items[0];
 
@@ -168,13 +179,14 @@ class SinglePoll extends React.Component {
                         </div>
 
                         <div className="small-4 column">
-                            <button className="info button"
+                            <button className="info button poll-modify-button"
                                     onClick={this.updatePoll.bind(this, poll.id)}>Add options</button>
                         </div>
 
                         <div className="small-12 column">
-                            <button className="alert button">Delete Poll</button>
-                            <span>This action cannot be reverted.</span>
+                            <button className="alert button poll-modify-button"
+                                    onClick={this.deletePoll.bind(this, poll.id)}>Delete Poll</button>
+                            <span className="delete-poll-warning-text">This action cannot be reverted.</span>
                         </div>
 
                     </div> :

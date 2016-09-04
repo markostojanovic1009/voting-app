@@ -165,3 +165,29 @@ export function addOptions(poll_id, options, token) {
         });
     }
 }
+
+export function deletePoll(poll_id, token) {
+    return (dispatch) => {
+        return fetch(`/api/poll/${poll_id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}`}
+        }).then((response) => {
+            if(response.ok) {
+                browserHistory.push('/polls');
+                dispatch({
+                    type: 'DELETE_POLL_SUCCESS',
+                    messages: [{
+                        msg: 'Poll deleted successfully.'
+                    }]
+                });
+            } else {
+                response.json().then((json) => {
+                    dispatch({
+                        type: 'DELETE_POLL_FAILURE',
+                        messages: Array.isArray(json) ? json : [json]
+                    });
+                });
+            }
+        });
+    }
+}
