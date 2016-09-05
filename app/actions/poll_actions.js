@@ -5,23 +5,22 @@ function sendRequest(route, method) {
             type: 'FETCH_POLLS',
         });
         return fetch(route, {
-                method: method || 'GET'
-            })
-            .then((response) => {
-                return response.json().then((json) => {
-                    if (response.ok) {
-                        dispatch({
-                            type: 'RECEIVE_POLLS_SUCCESS',
-                            polls: json
-                        });
-                    } else {
-                        dispatch({
-                            type: 'RECEIVE_POLLS_FAILURE',
-                            messages: Array.isArray(json) ? json : [json]
-                        });
-                    }
-                });
-            })
+            method: method || 'GET'
+        }).then((response) => {
+            return response.json().then((json) => {
+                if (response.ok) {
+                    dispatch({
+                        type: 'RECEIVE_POLLS_SUCCESS',
+                        polls: json
+                    });
+                } else {
+                    dispatch({
+                        type: 'RECEIVE_POLLS_FAILURE',
+                        messages: Array.isArray(json) ? json : [json]
+                    });
+                }
+            });
+        })
     };
 }
 
@@ -31,6 +30,35 @@ export function getAllPolls() {
 
 export  function getPoll(pollId) {
     return sendRequest(`/api/poll/${pollId}`);
+}
+
+export function getUserPolls(user_id, token) {
+    return (dispatch) => {
+        dispatch({
+            type: 'FETCH_POLLS',
+        });
+        return fetch(`/api/polls?user_id=${user_id}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        }).then((response) => {
+            return response.json().then((json) => {
+                if (response.ok) {
+                    dispatch({
+                        type: 'RECEIVE_POLLS_SUCCESS',
+                        polls: json
+                    });
+                } else {
+                    dispatch({
+                        type: 'RECEIVE_POLLS_FAILURE',
+                        messages: Array.isArray(json) ? json : [json]
+                    });
+                }
+            });
+        })
+    };
 }
 
 export function vote(pollId, pollOptionId, userId) {

@@ -3,7 +3,9 @@ import Poll from '../models/Poll';
 // TODO: Implement a way to verify that user is modifying the poll he has access to.
 
 exports.getAllPolls = function(req, res) {
-    Poll.getAllPolls().then((polls) => {
+    const user_id = req.query.user_id;
+
+    Poll.getAllPolls(user_id).then((polls) => {
         res.send(polls);
     }).catch((error) => {
         res.status(400).send(error);
