@@ -49,7 +49,7 @@ const Poll = {
     /*
      * Gets all polls and votes for each poll.
      */
-    getAllPolls() {
+    getAllPolls(user_id) {
         return new Promise((resolve, reject) => {
 
             knex.select('polls.id as pollId', 'title', 'poll_options.id as pollOptionId', 'text', 'vote_count')
@@ -58,6 +58,7 @@ const Poll = {
                 .joinRaw('left outer join (SELECT poll_option_id, COUNT(poll_option_id) as vote_count ' +
                     'FROM votes GROUP BY poll_option_id ) as votesCount ' +
                     'ON poll_options.id = votesCount.poll_option_id')
+                .where(user_id ? {user_id} : {})
                 .orderBy('polls.id', 'desc')
                 .then((result) => {
 
