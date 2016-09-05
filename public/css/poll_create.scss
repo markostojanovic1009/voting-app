@@ -1,10 +1,11 @@
-@import 'https://fonts.googleapis.com/css?family=Fugaz+One';
+@import 'https://fonts.googleapis.com/css?family=Ubuntu';
+
 .add-options-button {
   margin-left: -30px;
   @include breakpoint(medium) {
     margin-left: 20px;
   }
-  background-color: crimson;
+  background-color: #2199e8;
   font-size: 3em;
   font-weight: bold;
   width: 60px;
@@ -15,7 +16,7 @@
   -moz-box-shadow: 8px 10px 14px 2px rgba(0,0,0,0.69);
   box-shadow: 8px 10px 14px 2px rgba(0,0,0,0.69);
   &:hover{
-    background: #dd4b39;
+    background: rgb(57, 117, 221);
   }
   &:focus {
     outline: none;
@@ -24,8 +25,9 @@
 
 .poll-create-header {
   text-align: center;
-  font-size: 1.8em;
-  font-family: 'Fugaz One', cursive;
+  font-size: 2.3em;
+  font-family: 'Ubuntu', cursive;
+  margin-bottom: 30px;
 }
 
 input[type=text].poll-create-option-text {
@@ -52,12 +54,12 @@ input[type=text].poll-create-title {
 .create-poll-button {
   margin-top: 30px;
   margin-bottom: 20px;
-  background-color: #157539;
+  background-color: #00BA2B;
   color: #f0f0f0;
   padding: 15px;
   font-size: 1.2em;
   &:focus, &:hover {
-    background-color: #00BA2B;
+    background-color: #157539;
     outline: none;
   }
 }

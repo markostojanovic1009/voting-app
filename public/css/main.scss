@@ -60,14 +60,17 @@ body {
 }
 
 footer {
-  padding: 0 1rem;
+  padding: 10px;
   position: absolute;
   left: 0;
   bottom: 0;
   height: 50px;
   width: 100%;
-  line-height: 50px;
   background-color: #262626;
+  color: darkgray;
+  p {
+    margin: 0;
+  }
 }
 
 .text-danger,

@@ -16,6 +16,7 @@ class SinglePoll extends React.Component {
             }],
             displayAdditionalInput: false
         };
+
     }
 
     componentDidMount() {
@@ -25,6 +26,7 @@ class SinglePoll extends React.Component {
         } else {
             this.props.dispatch(getPoll(poll_id));
         }
+
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -138,6 +140,11 @@ class SinglePoll extends React.Component {
     render() {
         const poll = this.props.polls.items[0];
 
+
+        const generateTwitterUrl = function() {
+            return `https://twitter.com/intent/tweet?text=${encodeURIComponent(`${poll.title} - What do you think? Vote now on http://localhost:3000/poll/${poll.id}`)}`;
+        };
+
         const optionPanel = poll ?
             <div>
                 <div className="single-poll-title">{poll.title}</div>
@@ -153,6 +160,14 @@ class SinglePoll extends React.Component {
                     </select>
                     <button className="single-poll-vote button"
                             onClick={this.handleVoteButtonClick.bind(this, poll.id)} >Vote</button>
+                    <div className="twitter-button-wrapper">
+                        <a className="twitter-share-button button"
+                           href={generateTwitterUrl()}
+                           data-size="large">
+                            <i className="twitter-icon"></i>
+                            <span className="twitter-text">Tweet</span>
+                        </a>
+                    </div>
                 </div>
             </div> : null;
 
@@ -217,7 +232,7 @@ class SinglePoll extends React.Component {
                 </div>
 
                 <div className="row">
-                    <div className="small-12 medium-4 medium-offset-4">
+                    <div className="small-12 medium-4">
                         <Messages messages={this.props.messages} />
                     </div>
                 </div>
@@ -225,7 +240,7 @@ class SinglePoll extends React.Component {
                 <div className="row">
                     <div className="small-12">
                         {chart}
-                     </div>
+                    </div>
                 </div>
 
             </div>

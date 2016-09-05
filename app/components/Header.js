@@ -24,9 +24,9 @@ class Header extends React.Component {
               <li className="has-submenu">
                 <a href="">Polls</a>
                 <ul className="submenu menu vertical nested" data-submenu>
-                  <li><Link to="/polls">All polls</Link></li>
-                  <li><Link to="/new">Create</Link></li>
-                  <li><Link to="#">My polls</Link></li>
+                  <li><Link to="/polls/all">All polls</Link></li>
+                  <li><Link to="/polls/new">Create</Link></li>
+                  <li><Link to="/polls/my">My polls</Link></li>
                 </ul>
               </li>
             </ul>
@@ -38,6 +38,7 @@ class Header extends React.Component {
     ) : (
       <div className="top-bar-right">
         <ul className="vertical medium-horizontal menu">
+          <li><Link to="/polls/all" activeClassName="active">All polls</Link></li>
           <li><Link to="/login" activeClassName="active">Log in</Link></li>
           <li><Link to="/signup" activeClassName="active">Sign up</Link></li>
         </ul>
@@ -49,7 +50,7 @@ class Header extends React.Component {
           <span data-responsive-toggle="responsive-menu" data-hide-for="medium">
             <span className="menu-icon light" data-toggle></span>
           </span>
-          <IndexLink to="/">Project name</IndexLink>
+          <IndexLink to="/">Poll-it</IndexLink>
         </div>
         <div id="responsive-menu">
           <div className="top-bar-left">
