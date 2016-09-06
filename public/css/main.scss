@@ -108,14 +108,9 @@ footer {
 // Buttons
 // -------------------------
 
-.button-group .button:not(:last-child) {
-  border-right: 0;
-  margin-right: 5px;
-}
-
-.button-group > .button {
-  float: none;
-  margin-bottom: 5px;
+.login-buttons > .button {
+    margin: 10px 10px 10px 0;
+    width: 200px;
 }
 
 .button.facebook {
@@ -213,7 +208,6 @@ footer {
   border-top: 1px solid;
   color: rgba(152, 166, 173, 0.2);
   font-size: 14px;
-  text-align: center;
   line-height: 20px;
 }
 

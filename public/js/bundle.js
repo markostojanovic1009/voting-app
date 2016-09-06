@@ -1648,7 +1648,7 @@ var Login = function (_get__$Component) {
             ),
             _react2.default.createElement(
               'div',
-              { className: 'button-group' },
+              { className: 'login-buttons' },
               _react2.default.createElement(
                 'button',
                 { onClick: this.handleFacebook.bind(this), className: 'button facebook' },
@@ -2789,7 +2789,7 @@ var Signup = function (_get__$Component) {
             ),
             _react2.default.createElement(
               'div',
-              { className: 'button-group' },
+              { className: 'login-buttons' },
               _react2.default.createElement(
                 'button',
                 { onClick: this.handleFacebook.bind(this), className: 'button facebook' },

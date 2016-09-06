@@ -56,7 +56,7 @@ class Login extends React.Component {
               <button type="submit" className="button">Log in</button>
             </form>
             <div className="hr-title"><span>or</span></div>
-            <div className="button-group">
+            <div className="login-buttons">
         <button onClick={this.handleFacebook.bind(this)} className="button facebook">Sign in with Facebook</button>
         <button onClick={this.handleTwitter.bind(this)} className="button twitter">Sign in with Twitter</button>
         <button onClick={this.handleGoogle.bind(this)} className="button google">Sign in with Google</button>

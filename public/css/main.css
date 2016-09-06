@@ -18,7 +18,9 @@
   margin: 20px 0;
   width: 100%;
   padding: 20px;
-  background-color: #2B2929;
+  background: #2b2929;
+  background: -webkit-linear-gradient(left, #2b2929 0%, #30302f 50%, #2b2929 100%);
+  background: linear-gradient(to right, #2b2929 0%, #30302f 50%, #2b2929 100%);
   display: inline-block; }
   .poll-list-item hr {
     border: 0;
@@ -48,7 +50,7 @@
   font-weight: bold; }
 
 .poll-list-votes {
-  color: #403D3D;
+  color: #818181;
   margin-left: 10px; }
 
 .poll-options-wrapper {
@@ -3633,13 +3635,9 @@ footer {
   background-color: rgba(52, 211, 235, 0.2);
   border-color: rgba(52, 211, 235, 0.3); }
 
-.button-group .button:not(:last-child) {
-  border-right: 0;
-  margin-right: 5px; }
-
-.button-group > .button {
-  float: none;
-  margin-bottom: 5px; }
+.login-buttons > .button {
+  margin: 10px 10px 10px 0;
+  width: 200px; }
 
 .button.facebook {
   background-color: #3b5998;
@@ -3711,7 +3709,6 @@ footer {
   border-top: 1px solid;
   color: rgba(152, 166, 173, 0.2);
   font-size: 14px;
-  text-align: center;
   line-height: 20px; }
 
 .hr-title span {
