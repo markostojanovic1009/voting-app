@@ -18,16 +18,16 @@ exports.up = function(knex, Promise) {
             table.timestamps();
         }).createTable('polls', function(table) {
             table.increments();
-            table.integer('user_id').references('id').inTable('users');
+            table.integer('user_id').references('id').inTable('users').onDelete('CASCADE');
             table.string('title').notNullable();
         }).createTable('poll_options', function(table) {
             table.increments();
             table.string('text');
-            table.integer('poll_id').references('id').inTable('polls');
+            table.integer('poll_id').references('id').inTable('polls').onDelete('CASCADE');
         }).createTable('votes', function(table) {
             table.increments();
-            table.integer('poll_option_id').references('id').inTable('poll_options');
-            table.integer('user_id').references('id').inTable('users');
+            table.integer('poll_option_id').references('id').inTable('poll_options').onDelete('CASCADE');
+            table.integer('user_id').references('id').inTable('users').onDelete('CASCADE');
             table.string('ip_address');
         })
     ]);
