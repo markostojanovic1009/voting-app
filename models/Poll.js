@@ -273,6 +273,19 @@ const Poll = {
         });
     },
 
+    getPollOwner(poll_id) {
+        return new Promise((resolve, reject) => {
+            knex.select('user_id').from('polls').where('id', poll_id).then(([result]) => {
+                resolve(result.user_id);
+            }).catch((error) => {
+                if(error.code === '23503')
+                    reject({msg: 'Wrong poll id.'});
+                else
+                    reject(genericMessage);
+            })
+        })
+    },
+
     /**
      * Delete a poll with a given id
      */

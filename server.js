@@ -90,7 +90,7 @@ app.get('/auth/github/callback', userController.authGithubCallback);
 
 app.get('/api/polls', pollController.getPolls);
 app.post('/api/polls', userController.ensureAuthenticated, pollController.createPoll);
-app.get('/api/poll/:poll_id', pollController.getPoll);
+app.get('/api/poll/:poll_id', pollController.getPollVotes);
 app.post('/api/poll/:poll_id', pollController.vote);
 app.put('/api/poll/:poll_id', userController.ensureAuthenticated, pollController.updatePoll);
 app.delete('/api/poll/:poll_id', userController.ensureAuthenticated, pollController.deletePoll);

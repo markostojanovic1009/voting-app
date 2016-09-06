@@ -1,8 +1,24 @@
 import Poll from '../models/Poll';
 
-// TODO: Implement a way to verify that user is modifying the poll he has access to.
+// Verifies that the poll belongs to the user before
+// allowing him to delete or modify the poll.
+function verifyUserAccess(poll_id, user_id) {
+    return new Promise((resolve, reject) => {
+        Poll.getPollOwner(poll_id).then((owner_id) => {
+            if (owner_id === user_id)
+                resolve();
+            else
+                reject({
+                    code: 401
+                });
+        }).catch((error) => {
+            reject(error);
+        });
+    });
+}
 
 exports.getPolls = function(req, res) {
+
     const user_id = req.query.user_id;
 
     Poll.getPolls(user_id).then((polls) => {
@@ -10,9 +26,10 @@ exports.getPolls = function(req, res) {
     }).catch((error) => {
         res.status(400).send(error);
     });
+
 };
 
-exports.getPoll = function (req, res) {
+exports.getPollVotes = function (req, res) {
 
     const poll_id = req.params.poll_id;
     if(!Number.isInteger(parseInt(poll_id))) {
@@ -48,11 +65,13 @@ exports.vote = function (req, res) {
 };
 
 exports.createPoll = function(req, res) {
+
     let newPollId = null;
+
     Poll.createPoll(req.body.userId, req.body.title).then((poll) => {
         newPollId = poll.id;
         return Poll.addPollOptions(poll.id, req.body.options);
-    }).then((pollOptions) => {
+    }).then(() => {
         res.status(200).send({poll_id: newPollId});
     }).catch((error) => {
         res.status(400).send(error);
@@ -60,9 +79,13 @@ exports.createPoll = function(req, res) {
 };
 
 exports.updatePoll = function (req, res) {
+
     const poll_id = req.params.poll_id;
     const options = req.body.options;
-    Poll.addPollOptions(poll_id, options).then((pollOptions) => {
+
+    verifyUserAccess(poll_id, req.user.id).then(() => {
+        Poll.addPollOptions(poll_id, options)
+    }).then((pollOptions) => {
         res.status(200).send(pollOptions);
     }).catch((error) => {
         res.status(400).send(error);
@@ -70,11 +93,16 @@ exports.updatePoll = function (req, res) {
 };
 
 exports.deletePoll = function (req, res) {
+
     const poll_id = req.params.poll_id;
 
-    Poll.deletePoll(poll_id).then(() => {
+    verifyUserAccess(poll_id, req.user.id).then(() => {
+        return Poll.deletePoll(poll_id);
+    }).then(() => {
         res.sendStatus(204);
     }).catch((error) => {
+        if(error.code === 401)
+            res.status(401).send({msg: 'Unauthorized'});
         res.status(400).send(error);
     });
 };
