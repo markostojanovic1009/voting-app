@@ -4127,6 +4127,8 @@ var _Messages = require('./Messages');
 
 var _Messages2 = _interopRequireDefault(_Messages);
 
+var _reactRouter = require('react-router');
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -4149,68 +4151,51 @@ var Home = function (_get__$Component) {
     value: function render() {
       var _Messages_Component = _get__('Messages');
 
+      var _Link_Component = _get__('Link');
+
+      var _Link_Component2 = _get__('Link');
+
       return _react2.default.createElement(
         'div',
-        { className: 'expanded row' },
+        { className: 'row' },
         _react2.default.createElement(_Messages_Component, { messages: this.props.messages }),
         _react2.default.createElement(
           'div',
           { className: 'row' },
           _react2.default.createElement(
             'div',
-            { className: 'medium-4 columns' },
+            { className: 'small-12 welcome-header' },
+            _react2.default.createElement(
+              'h1',
+              null,
+              'Welcome to Poll-it'
+            ),
             _react2.default.createElement(
               'h3',
               null,
-              'Heading 123'
-            ),
-            _react2.default.createElement(
-              'p',
-              null,
-              'Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.'
-            ),
-            _react2.default.createElement(
-              'a',
-              { href: '#', role: 'button', className: 'button' },
-              'View details'
+              'Get people\'s opinions on every topic'
             )
-          ),
+          )
+        ),
+        _react2.default.createElement(
+          'div',
+          { className: 'row' },
           _react2.default.createElement(
             'div',
-            { className: 'medium-4 columns' },
+            { className: 'small-12 medium-8 medium-offset-2' },
             _react2.default.createElement(
-              'h3',
-              null,
-              'Heading'
-            ),
-            _react2.default.createElement(
-              'p',
-              null,
-              'Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.'
-            ),
-            _react2.default.createElement(
-              'a',
-              { href: '#', role: 'button', className: 'button' },
-              'View details'
-            )
-          ),
-          _react2.default.createElement(
-            'div',
-            { className: 'medium-4 columns' },
-            _react2.default.createElement(
-              'h3',
-              null,
-              'Heading'
-            ),
-            _react2.default.createElement(
-              'p',
-              null,
-              'Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna mollis euismod. Donec sed odio dui.'
-            ),
-            _react2.default.createElement(
-              'a',
-              { href: '#', role: 'button', className: 'button' },
-              'View details'
+              'div',
+              { className: 'welcome-subheader' },
+              _react2.default.createElement(
+                _Link_Component,
+                { to: '/polls/all', className: 'large button' },
+                'See recent polls'
+              ),
+              _react2.default.createElement(
+                _Link_Component2,
+                { to: '/polls/new', className: 'large button green-button' },
+                'Create your own!'
+              )
             )
           )
         )
@@ -4259,6 +4244,9 @@ function _get_original__(variableName) {
   switch (variableName) {
     case 'Messages':
       return _Messages2.default;
+
+    case 'Link':
+      return _reactRouter.Link;
 
     case 'React':
       return _react2.default;
@@ -4369,7 +4357,7 @@ exports.__set__ = _set__;
 exports.__ResetDependency__ = _reset__;
 exports.__RewireAPI__ = _RewireAPI__;
 
-},{"./Messages":15,"react":282,"react-redux":102}],15:[function(require,module,exports){
+},{"./Messages":15,"react":282,"react-redux":102,"react-router":135}],15:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {

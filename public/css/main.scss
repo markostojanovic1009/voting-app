@@ -3,6 +3,7 @@
 @import "all_polls.scss";
 @import "single_poll.scss";
 @import "poll_create.scss";
+@import "index.scss";
 @import 'https://fonts.googleapis.com/css?family=Ubuntu';
 
 
@@ -118,6 +119,14 @@ footer {
 
 // Buttons
 // -------------------------
+
+.green-button {
+  @extend .button;
+  background-color: #00BA2B;
+  &:hover, &:focus {
+    background-color: #049c28;
+  }
+}
 
 .login-buttons > .button {
     margin: 10px 10px 10px 0;

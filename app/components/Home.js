@@ -1,33 +1,31 @@
 import React from 'react';
 import { connect } from 'react-redux'
 import Messages from './Messages';
+import {Link} from 'react-router';
 
 class Home extends React.Component {
   render() {
     return (
-      <div className="expanded row">
+      <div className="row">
         <Messages messages={this.props.messages}/>
+
         <div className="row">
-          <div className="medium-4 columns">
-            <h3>Heading 123</h3>
-            <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
-              mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna
-              mollis euismod. Donec sed odio dui.</p>
-            <a href="#" role="button" className="button">View details</a>
+          <div className="small-12 welcome-header">
+            <h1>
+              Welcome to Poll-it
+            </h1>
+            <h3>
+              Get people's opinions on every topic
+            </h3>
           </div>
-          <div className="medium-4 columns">
-            <h3>Heading</h3>
-            <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
-              mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna
-              mollis euismod. Donec sed odio dui.</p>
-            <a href="#" role="button" className="button">View details</a>
-          </div>
-          <div className="medium-4 columns">
-            <h3>Heading</h3>
-            <p>Donec id elit non mi porta gravida at eget metus. Fusce dapibus, tellus ac cursus commodo, tortor
-              mauris condimentum nibh, ut fermentum massa justo sit amet risus. Etiam porta sem malesuada magna
-              mollis euismod. Donec sed odio dui.</p>
-            <a href="#" role="button" className="button">View details</a>
+        </div>
+
+        <div className="row">
+          <div className="small-12 medium-8 medium-offset-2">
+            <div className="welcome-subheader">
+              <Link to="/polls/all" className="large button">See recent polls</Link>
+              <Link to="/polls/new" className="large button green-button">Create your own!</Link>
+            </div>
           </div>
         </div>
       </div>
