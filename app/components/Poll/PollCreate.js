@@ -63,7 +63,7 @@ class PollCreate extends React.Component {
 
                 <div className="row">
                     <div className="small-12 medium-6 medium-offset-3 columns">
-                        <p className="poll-create-header">Create a new poll</p>
+                        <h2 className="poll-header">Create a new poll</h2>
                     </div>
                 </div>
 

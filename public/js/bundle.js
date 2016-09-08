@@ -50,7 +50,7 @@ function login(email, password) {
             user: json.user
           });
           _get__('cookie').save('token', json.token, { expires: _get__('moment')().add(1, 'hour').toDate() });
-          _get__('browserHistory').push('/account');
+          _get__('browserHistory').push('/');
         });
       } else {
         return response.json().then(function (json) {
@@ -3735,6 +3735,10 @@ var Header = function (_get__$Component) {
 
       var _Link_Component7 = _get__('Link');
 
+      var _Link_Component8 = _get__('Link');
+
+      var _Link_Component9 = _get__('Link');
+
       var rightNav = this.props.token ? _react2.default.createElement(
         'div',
         { className: 'top-bar-right' },
@@ -3819,16 +3823,56 @@ var Header = function (_get__$Component) {
             'li',
             null,
             _react2.default.createElement(
-              _Link_Component5,
-              { to: '/polls/all', activeClassName: 'active' },
-              'All polls'
+              'ul',
+              { className: 'medium-horizontal vertical dropdown menu',
+                'data-responsive-menu': 'accordion medium-dropdown' },
+              _react2.default.createElement(
+                'li',
+                { className: 'has-submenu' },
+                _react2.default.createElement(
+                  'a',
+                  { href: '' },
+                  'Polls'
+                ),
+                _react2.default.createElement(
+                  'ul',
+                  { className: 'submenu menu vertical nested', 'data-submenu': true },
+                  _react2.default.createElement(
+                    'li',
+                    null,
+                    _react2.default.createElement(
+                      _Link_Component5,
+                      { to: '/polls/all' },
+                      'All polls'
+                    )
+                  ),
+                  _react2.default.createElement(
+                    'li',
+                    null,
+                    _react2.default.createElement(
+                      _Link_Component6,
+                      { to: '/polls/new' },
+                      'Create'
+                    )
+                  ),
+                  _react2.default.createElement(
+                    'li',
+                    null,
+                    _react2.default.createElement(
+                      _Link_Component7,
+                      { to: '/polls/my' },
+                      'My polls'
+                    )
+                  )
+                )
+              )
             )
           ),
           _react2.default.createElement(
             'li',
             null,
             _react2.default.createElement(
-              _Link_Component6,
+              _Link_Component8,
               { to: '/login', activeClassName: 'active' },
               'Log in'
             )
@@ -3837,7 +3881,7 @@ var Header = function (_get__$Component) {
             'li',
             null,
             _react2.default.createElement(
-              _Link_Component7,
+              _Link_Component9,
               { to: '/signup', activeClassName: 'active' },
               'Sign up'
             )
@@ -3849,7 +3893,7 @@ var Header = function (_get__$Component) {
 
       var _IndexLink_Component2 = _get__('IndexLink');
 
-      var _Link_Component8 = _get__('Link');
+      var _Link_Component10 = _get__('Link');
 
       return _react2.default.createElement(
         'div',
@@ -3890,7 +3934,7 @@ var Header = function (_get__$Component) {
                 'li',
                 null,
                 _react2.default.createElement(
-                  _Link_Component8,
+                  _Link_Component10,
                   { to: '/contact', activeClassName: 'active' },
                   'Contact'
                 )
@@ -4743,11 +4787,28 @@ var AllPolls = function (_get__$Component) {
 
             return _react2.default.createElement(
                 'div',
-                { className: 'row' },
+                null,
                 _react2.default.createElement(
                     'div',
-                    { className: 'small-12 medium-8 medium-offset-2' },
-                    _react2.default.createElement(_PollList_Component, { polls: this.props.polls })
+                    { className: 'row' },
+                    _react2.default.createElement(
+                        'div',
+                        { className: 'small-12 medium-8 medium-offset-2' },
+                        _react2.default.createElement(
+                            'h2',
+                            { className: 'poll-header' },
+                            'Browse recent polls'
+                        )
+                    )
+                ),
+                _react2.default.createElement(
+                    'div',
+                    { className: 'row' },
+                    _react2.default.createElement(
+                        'div',
+                        { className: 'small-12 medium-8 medium-offset-2' },
+                        _react2.default.createElement(_PollList_Component, { polls: this.props.polls })
+                    )
                 )
             );
         }
@@ -4961,11 +5022,28 @@ var MyPolls = function (_get__$Component) {
 
             return _react2.default.createElement(
                 'div',
-                { className: 'row' },
+                null,
                 _react2.default.createElement(
                     'div',
-                    { className: 'small-12 medium-8 medium-offset-2' },
-                    _react2.default.createElement(_PollList_Component, { polls: this.props.polls })
+                    { className: 'row' },
+                    _react2.default.createElement(
+                        'div',
+                        { className: 'small-12 medium-8 medium-offset-2' },
+                        _react2.default.createElement(
+                            'h2',
+                            { className: 'poll-header' },
+                            'Your polls'
+                        )
+                    )
+                ),
+                _react2.default.createElement(
+                    'div',
+                    { className: 'row' },
+                    _react2.default.createElement(
+                        'div',
+                        { className: 'small-12 medium-8 medium-offset-2' },
+                        _react2.default.createElement(_PollList_Component, { polls: this.props.polls })
+                    )
                 )
             );
         }
@@ -5239,8 +5317,8 @@ var PollCreate = function (_get__$Component) {
                         'div',
                         { className: 'small-12 medium-6 medium-offset-3 columns' },
                         _react2.default.createElement(
-                            'p',
-                            { className: 'poll-create-header' },
+                            'h2',
+                            { className: 'poll-header' },
                             'Create a new poll'
                         )
                     )
@@ -7145,7 +7223,7 @@ function getRoutes(store) {
     _react2.default.createElement(_Route_Component6, { path: '/forgot', component: _get__('Forgot'), onEnter: skipIfAuthenticated, onLeave: clearMessages }),
     _react2.default.createElement(_Route_Component7, { path: '/reset/:token', component: _get__('Reset'), onEnter: skipIfAuthenticated, onLeave: clearMessages }),
     _react2.default.createElement(_Route_Component8, { path: '/polls/all', component: _get__('AllPolls'), onLeave: clearMessages }),
-    _react2.default.createElement(_Route_Component9, { path: '/polls/my', component: _get__('MyPolls'), onLeave: clearMessages }),
+    _react2.default.createElement(_Route_Component9, { path: '/polls/my', component: _get__('MyPolls'), onEnter: ensureAuthenticated, onLeave: clearMessages }),
     _react2.default.createElement(_Route_Component10, { path: '/polls/new', component: _get__('PollCreate'), onEnter: ensureAuthenticated, onLeave: clearMessages }),
     _react2.default.createElement(_Route_Component11, { path: '/poll/:poll_id', component: _get__('SinglePoll'), onLeave: clearMessages }),
     _react2.default.createElement(_Route_Component12, { path: '*', component: _get__('NotFound'), onLeave: clearMessages })

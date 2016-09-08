@@ -15,9 +15,17 @@ class MyPolls extends React.Component {
 
     render() {
         return(
-            <div className="row">
-                <div className="small-12 medium-8 medium-offset-2">
-                    <PollList polls={this.props.polls} />
+            <div>
+                <div className="row">
+                    <div className="small-12 medium-8 medium-offset-2">
+                        <h2 className="poll-header">Your polls</h2>
+                    </div>
+                </div>
+
+                <div className="row">
+                    <div className="small-12 medium-8 medium-offset-2">
+                        <PollList polls={this.props.polls} />
+                    </div>
                 </div>
             </div>
         )

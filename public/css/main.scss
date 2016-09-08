@@ -3,6 +3,8 @@
 @import "all_polls.scss";
 @import "single_poll.scss";
 @import "poll_create.scss";
+@import 'https://fonts.googleapis.com/css?family=Ubuntu';
+
 
 @include foundation-global-styles;
 @include foundation-grid;
@@ -71,6 +73,15 @@ footer {
   p {
     margin: 0;
   }
+}
+
+.poll-header {
+  margin: 20px 0;
+  text-align: center;
+  @include breakpoint(small only) {
+    font-size: 2em;
+  }
+  font-family: 'Ubuntu', sans-serif;
 }
 
 .text-danger,

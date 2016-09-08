@@ -121,18 +121,12 @@
     .add-options-button {
       margin-left: 20px; } }
   .add-options-button:hover {
-    background: #3975dd; }
+    background: #1583cc; }
   .add-options-button:focus {
     outline: none; }
 
-.poll-create-header {
-  text-align: center;
-  font-size: 2.3em;
-  font-family: 'Ubuntu', cursive;
-  margin-bottom: 30px; }
-
 input[type=text].poll-create-option-text {
-  margin-top: 10px;
+  margin-top: 15px;
   border: none;
   border-bottom: 2px solid lightgray; }
   input[type=text].poll-create-option-text:focus {
@@ -142,7 +136,8 @@ input[type=text].poll-create-title {
   border: none;
   border-bottom: 3px solid lightgray;
   font-size: 1.3em;
-  padding: 10px; }
+  padding: 10px;
+  margin: 20px 0; }
   input[type=text].poll-create-title:focus {
     border: none;
     border-bottom: 3px solid darkgray;
@@ -156,7 +151,7 @@ input[type=text].poll-create-title {
   padding: 15px;
   font-size: 1.2em; }
   .create-poll-button:focus, .create-poll-button:hover {
-    background-color: #157539;
+    background-color: #049c28;
     outline: none; }
 
 /*! normalize.css v3.0.3 | MIT License | github.com/necolas/normalize.css */
@@ -3612,6 +3607,14 @@ footer {
   color: darkgray; }
   footer p {
     margin: 0; }
+
+.poll-header {
+  margin: 20px 0;
+  text-align: center;
+  font-family: 'Ubuntu', sans-serif; }
+  @media screen and (max-width: 39.9375em) {
+    .poll-header {
+      font-size: 2em; } }
 
 .text-danger,
 .text-alert {

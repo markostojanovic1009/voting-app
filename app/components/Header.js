@@ -38,7 +38,19 @@ class Header extends React.Component {
     ) : (
       <div className="top-bar-right">
         <ul className="vertical medium-horizontal menu">
-          <li><Link to="/polls/all" activeClassName="active">All polls</Link></li>
+          <li>
+            <ul className="medium-horizontal vertical dropdown menu"
+                data-responsive-menu="accordion medium-dropdown">
+              <li className="has-submenu">
+                <a href="">Polls</a>
+                <ul className="submenu menu vertical nested" data-submenu>
+                  <li><Link to="/polls/all">All polls</Link></li>
+                  <li><Link to="/polls/new">Create</Link></li>
+                  <li><Link to="/polls/my">My polls</Link></li>
+                </ul>
+              </li>
+            </ul>
+          </li>
           <li><Link to="/login" activeClassName="active">Log in</Link></li>
           <li><Link to="/signup" activeClassName="active">Sign up</Link></li>
         </ul>
