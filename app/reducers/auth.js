@@ -19,6 +19,10 @@ export default function auth(state = initialState, action) {
       return Object.assign({}, state, {
         user: Object.assign({}, state.user, {[action.provider]: null})
       });
+    case 'UPDATE_PROFILE_SUCCESS':
+      return Object.assign({}, state, {
+        user: Object.assign({}, state.user, action.user)
+      });
     case 'LOGOUT_SUCCESS':
       return initialState;
     default:
