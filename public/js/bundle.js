@@ -187,7 +187,8 @@ function updateProfile(state, token) {
         return response.json().then(function (json) {
           dispatch({
             type: 'UPDATE_PROFILE_SUCCESS',
-            messages: [json]
+            user: json.user,
+            messages: [{ msg: json.msg }]
           });
         });
       } else {
@@ -5287,10 +5288,14 @@ var PollCreate = function (_get__$Component) {
             var _this2 = this;
 
             var mappedOptions = this.state.options.map(function (option, index) {
-                return _react2.default.createElement('input', { type: 'text', key: index, value: option.text,
-                    className: 'poll-create-option-text',
-                    placeholder: 'Option text...',
-                    onChange: _this2.handleOptionTextChange.bind(_this2, index) });
+                return _react2.default.createElement(
+                    'div',
+                    { className: 'small-9 medium-6 medium-offset-2 columns' },
+                    _react2.default.createElement('input', { type: 'text', key: index, value: option.text,
+                        className: 'poll-create-option-text',
+                        placeholder: 'Option text...',
+                        onChange: _this2.handleOptionTextChange.bind(_this2, index) })
+                );
             });
 
             var _Messages_Component = _get__('Messages');
@@ -5325,11 +5330,7 @@ var PollCreate = function (_get__$Component) {
                 _react2.default.createElement(
                     'div',
                     { className: 'row' },
-                    _react2.default.createElement(
-                        'div',
-                        { className: 'small-9 medium-6 medium-offset-2 columns' },
-                        mappedOptions
-                    ),
+                    mappedOptions,
                     _react2.default.createElement(
                         'div',
                         { className: 'small-2 medium-4 columns' },
@@ -5346,10 +5347,10 @@ var PollCreate = function (_get__$Component) {
                     { className: 'row' },
                     _react2.default.createElement(
                         'div',
-                        { className: 'small-4 medium-3 medium-offset-2 columns' },
+                        { className: 'small-12 medium-8 medium-offset-2 columns' },
                         _react2.default.createElement(
                             'button',
-                            { className: 'create-poll-button',
+                            { className: 'create-poll-button green-button',
                                 onClick: this.createButtonClick.bind(this, this.props.auth) },
                             'Create'
                         )
@@ -5594,7 +5595,7 @@ var PollList = function (_get__$Component) {
                         ),
                         _react2.default.createElement(
                             _Link_Component,
-                            { className: 'vote-now-button', to: '/poll/' + item.pollId },
+                            { className: 'vote-now-button green-button', to: '/poll/' + item.pollId },
                             'Vote now!'
                         )
                     ),
@@ -6519,6 +6520,10 @@ function auth() {
     case 'UNLINK_SUCCESS':
       return Object.assign({}, state, {
         user: Object.assign({}, state.user, _defineProperty({}, action.provider, null))
+      });
+    case 'UPDATE_PROFILE_SUCCESS':
+      return Object.assign({}, state, {
+        user: Object.assign({}, state.user, action.user)
       });
     case 'LOGOUT_SUCCESS':
       return _get__('initialState');

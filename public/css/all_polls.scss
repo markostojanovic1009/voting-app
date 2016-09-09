@@ -26,19 +26,15 @@
   }
 }
 
-.vote-now-button {
-  background-color: #00BA2B;
-  color: #f1f1f1;
+.vote-now-button.green-button {
   padding: 10px;
-  &:hover{
-    color: #f0f0f0;
-    background-color: #049c28;
-  }
-  margin-top: 10px;
-  display: inline-block;
+  font-size: 1.1em;
+  margin-top: 20px;
+  display: block;
   @include breakpoint(medium) {
     float: right;
     margin-top: 0;
+    display: inline-block;
   }
 }
 

@@ -16,7 +16,7 @@ class PollList extends React.Component {
                     <div className="poll-title-wrapper">
                         <span className="poll-list-title">{item.title}</span>
                         <span className="poll-list-votes">{`(${item.total} votes)`}</span>
-                        <Link className="vote-now-button" to={'/poll/' + item.pollId}>Vote now!</Link>
+                        <Link className="vote-now-button green-button" to={'/poll/' + item.pollId}>Vote now!</Link>
                     </div>
                     <div className="poll-options-wrapper">
                         <ul>

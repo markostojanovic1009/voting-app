@@ -112,7 +112,7 @@ const Poll = {
                         }, 0);
 
                         /*
-                         * Returns 0% nobody voted for the poll.
+                         * Returns 0% for each option if nobody voted in this poll.
                          */
                         return {
                             ...item,
@@ -294,7 +294,6 @@ const Poll = {
             return knex('polls').where('id', poll_id).del().then(() => {
                 resolve();
             }).catch((error) => {
-                console.log(error);
                 reject(genericMessage);
             });
         });

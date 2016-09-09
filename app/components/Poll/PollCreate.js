@@ -52,10 +52,12 @@ class PollCreate extends React.Component {
     render() {
         const mappedOptions = this.state.options.map((option, index) => {
             return (
-                <input type="text" key={index} value={option.text}
-                       className="poll-create-option-text"
-                       placeholder="Option text..."
-                       onChange={this.handleOptionTextChange.bind(this, index)} />
+                <div className="small-9 medium-6 medium-offset-2 columns">
+                    <input type="text" key={index} value={option.text}
+                           className="poll-create-option-text"
+                           placeholder="Option text..."
+                           onChange={this.handleOptionTextChange.bind(this, index)} />
+                </div>
             )
         });
         return(
@@ -76,9 +78,7 @@ class PollCreate extends React.Component {
                 </div>
 
                 <div className="row">
-                    <div className="small-9 medium-6 medium-offset-2 columns">
-                        {mappedOptions}
-                    </div>
+                    {mappedOptions}
                     <div className="small-2 medium-4 columns">
                         <button className="add-options-button"
                                 onClick={this.addOptionsTextInput.bind(this)}>+</button>
@@ -87,8 +87,8 @@ class PollCreate extends React.Component {
 
 
                 <div className="row">
-                    <div className="small-4 medium-3 medium-offset-2 columns">
-                        <button className="create-poll-button"
+                    <div className="small-12 medium-8 medium-offset-2 columns">
+                        <button className="create-poll-button green-button"
                             onClick={this.createButtonClick.bind(this, this.props.auth)}>Create</button>
                     </div>
                 </div>
