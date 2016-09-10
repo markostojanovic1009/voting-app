@@ -20,8 +20,9 @@ function verifyUserAccess(poll_id, user_id) {
 exports.getPolls = function(req, res) {
 
     const user_id = req.query.user_id;
+    const pageNumber = req.query.page;
 
-    Poll.getPolls(user_id).then((polls) => {
+    Poll.getPolls(user_id, pageNumber).then((polls) => {
         res.send(polls);
     }).catch((error) => {
         res.status(400).send(error);

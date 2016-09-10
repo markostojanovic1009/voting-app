@@ -54,21 +54,28 @@ const Poll = {
      * Returns polls and aggregated poll results.
      * Receives either a valid user id, in which case it returns
      * polls made by the user with that id, or null, in which case
-     * it returns all the polls
+     * it returns all the polls.
+     * It also supports pagination.
      */
-    getPolls(user_id) {
+    getPolls(user_id, pageNumber) {
         return new Promise((resolve, reject) => {
 
-            knex.select('polls.id as pollId', 'title', 'poll_options.id as pollOptionId', 'text', 'vote_count')
-                .from('polls')
-                .join('poll_options', 'poll_options.poll_id', 'polls.id')
+            knex.select('offset_polls.id as pollId', 'offset_polls.title', 'poll_options.id as pollOptionId', 'text', 'vote_count')
+                .from(function() {
+                    this.select("*")
+                        .from('polls')
+                        .where(user_id ? {user_id} : {}) // Filter based on user_id
+                        .orderBy('id', 'desc')
+                        .limit(10)
+                        .offset(pageNumber > 0 ? (pageNumber - 1) * 10 : 0) // If invalid pageNumber is sent default to 0
+                        .as('offset_polls')
+                })
+                .join('poll_options', 'poll_options.poll_id', 'offset_polls.id')
                 .joinRaw('left outer join (SELECT poll_option_id, COUNT(poll_option_id) as vote_count ' +
                     'FROM votes GROUP BY poll_option_id ) as votesCount ' +
                     'ON poll_options.id = votesCount.poll_option_id')
-                .where(user_id ? {user_id} : {}) // Filter based on user_id
-                .orderBy('polls.id', 'desc') // Newest polls first
+                .orderBy('offset_polls.id', 'desc')// Newest polls first
                 .then((result) => {
-
                     /*
                      * Groups results into an array of poll objects.
                      * Each poll object has a pollId, title, total ( added later )
@@ -127,6 +134,7 @@ const Poll = {
                     resolve(groupedResults);
                 })
                 .catch((error) => {
+                    console.log(error);
                     reject(genericMessage);
                 });
 
