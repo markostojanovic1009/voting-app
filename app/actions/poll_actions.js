@@ -1,11 +1,15 @@
 import {browserHistory} from 'react-router';
-function sendRequest(route, method) {
+function sendRequest(route, token) {
     return (dispatch) => {
         dispatch({
             type: 'FETCH_POLLS',
         });
         return fetch(route, {
-            method: method || 'GET'
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
         }).then((response) => {
             return response.json().then((json) => {
                 if (response.ok) {
@@ -34,33 +38,7 @@ export  function getPoll(pollId) {
 }
 
 export function getUserPolls(user_id, token, pageNumber = 1, getPageCount = false) {
-    return (dispatch) => {
-        dispatch({
-            type: 'FETCH_POLLS',
-        });
-        return fetch(`/api/polls?user_id=${user_id}&page=${pageNumber}${getPageCount ? "&page_count" : ""}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
-        }).then((response) => {
-            return response.json().then((json) => {
-                if (response.ok) {
-                    dispatch({
-                        type: 'RECEIVE_POLLS_SUCCESS',
-                        polls: Array.isArray(json) ? json : json.polls,
-                        pageCount: json.pageCount
-                    });
-                } else {
-                    dispatch({
-                        type: 'RECEIVE_POLLS_FAILURE',
-                        messages: Array.isArray(json) ? json : [json]
-                    });
-                }
-            });
-        })
-    };
+    return sendRequest(`/api/polls?user_id=${user_id}&page=${pageNumber}${getPageCount ? "&page_count" : ""}`, token);
 }
 
 export function vote(pollId, pollOptionId, userId) {

@@ -62,18 +62,20 @@ class PollList extends React.Component {
         let previousPages = [];
         const currentPageNumber = this.state.pageNumber;
         const totalPageNumber = this.props.polls.pageCount;
-        for(let i = 1; i <= 3; i++) {
+        for(let i = 1; i <= 2; i++) {
             if(currentPageNumber + i <= totalPageNumber) {
                 nextPages.push(
                     <li><a href="#" aria-label={`Page${currentPageNumber + i}`}
                            key={currentPageNumber + i}
                            onClick={this.handlePageChange.bind(this, (currentPageNumber + i))}>{currentPageNumber + i}</a></li>
                 );
-            } else if (currentPageNumber - i >= 1) {
+            }
+            if (currentPageNumber - (3 - i) >= 1) {
+                const prevPageNumber = currentPageNumber - (3 - i);
                 previousPages.push(
-                    <li><a href="#" aria-label={`Page${currentPageNumber - i}`}
-                           key={currentPageNumber - i}
-                           onClick={this.handlePageChange.bind(this, (currentPageNumber - i))}>{currentPageNumber - i}</a></li>
+                    <li><a href="#" aria-label={`Page${prevPageNumber}`}
+                           key={prevPageNumber}
+                           onClick={this.handlePageChange.bind(this, (prevPageNumber))}>{prevPageNumber}</a></li>
                 );
             }
         }

@@ -15,7 +15,7 @@ class Home extends React.Component {
               Welcome to Poll-it
             </h1>
             <h3>
-              Get people's opinions on every topic
+              Your opinion matters. Vote now.
             </h3>
           </div>
         </div>

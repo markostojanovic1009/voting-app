@@ -159,7 +159,8 @@ input[type=text].poll-create-title:focus, input[type=text].poll-create-option-te
 
 .welcome-subheader {
   text-align: center;
-  margin-top: 50px; }
+  margin-top: 50px;
+  margin-bottom: 100px; }
   @media screen and (min-width: 40em) {
     .welcome-subheader {
       margin-top: 100px; } }
@@ -3638,7 +3639,7 @@ footer {
 .callout.success {
   background-color: rgba(95, 190, 170, 0.3);
   border-color: rgba(95, 190, 170, 0.4);
-  color: #3adb76; }
+  color: #29a658; }
 
 .callout.primary {
   background-color: rgba(52, 211, 235, 0.2);
