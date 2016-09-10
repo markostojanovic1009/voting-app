@@ -1,6 +1,7 @@
 const initialState = {
     isFetching: false,
-    items: []
+    items: [],
+    pageCount: 0
 };
 
 export default function polls(state = initialState, action) {
@@ -8,7 +9,11 @@ export default function polls(state = initialState, action) {
         case 'FETCH_POLLS':
             return Object.assign({}, state, { isFetching: true });
         case 'RECEIVE_POLLS_SUCCESS':
-            return Object.assign({}, state, { isFetching: false, items: action.polls.slice() });
+            return Object.assign({}, state, {
+                isFetching: false,
+                items: action.polls.slice(),
+                pageCount: action.pageCount || state.pageCount
+            });
         case 'VOTE_SUCCESS':
             return Object.assign({}, state, {
                 items: state.items.map((item) => {

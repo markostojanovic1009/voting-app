@@ -1,6 +1,6 @@
 import React from 'react';
 import {connect} from 'react-redux';
-import { getAllPolls } from '../../actions/poll_actions';
+import { getPolls } from '../../actions/poll_actions';
 import PollList from './PollList';
 
 class AllPolls extends React.Component {
@@ -10,7 +10,11 @@ class AllPolls extends React.Component {
     }
 
     componentDidMount() {
-        this.props.dispatch(getAllPolls());
+        this.props.dispatch(getPolls(1, true));
+    }
+
+    handlePollPagination(pageNumber) {
+        this.props.dispatch(getPolls(pageNumber));
     }
 
     render() {
@@ -25,7 +29,7 @@ class AllPolls extends React.Component {
 
                 <div className="row">
                     <div className="small-12 medium-8 medium-offset-2">
-                        <PollList polls={this.props.polls} />
+                        <PollList polls={this.props.polls} getPolls={this.handlePollPagination.bind(this)}/>
                     </div>
                 </div>
 

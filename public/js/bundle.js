@@ -907,7 +907,7 @@ exports.__RewireAPI__ = exports.__ResetDependency__ = exports.__set__ = exports.
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
-exports.getAllPolls = getAllPolls;
+exports.getPolls = getPolls;
 exports.getPoll = getPoll;
 exports.getUserPolls = getUserPolls;
 exports.vote = vote;
@@ -929,7 +929,8 @@ function sendRequest(route, method) {
                 if (response.ok) {
                     dispatch({
                         type: 'RECEIVE_POLLS_SUCCESS',
-                        polls: json
+                        polls: Array.isArray(json) ? json : json.polls,
+                        pageCount: json.pageCount
                     });
                 } else {
                     dispatch({
@@ -942,8 +943,11 @@ function sendRequest(route, method) {
     };
 }
 
-function getAllPolls() {
-    return _get__('sendRequest')('/api/polls');
+function getPolls() {
+    var pageNumber = arguments.length <= 0 || arguments[0] === undefined ? 1 : arguments[0];
+    var getPageCount = arguments.length <= 1 || arguments[1] === undefined ? false : arguments[1];
+
+    return _get__('sendRequest')('/api/polls?page=' + pageNumber + (getPageCount ? "&page_count" : ""));
 }
 
 function getPoll(pollId) {
@@ -951,11 +955,14 @@ function getPoll(pollId) {
 }
 
 function getUserPolls(user_id, token) {
+    var pageNumber = arguments.length <= 2 || arguments[2] === undefined ? 1 : arguments[2];
+    var getPageCount = arguments.length <= 3 || arguments[3] === undefined ? false : arguments[3];
+
     return function (dispatch) {
         dispatch({
             type: 'FETCH_POLLS'
         });
-        return fetch('/api/polls?user_id=' + user_id, {
+        return fetch('/api/polls?user_id=' + user_id + '&page=' + pageNumber + (getPageCount ? "&page_count" : ""), {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -966,7 +973,8 @@ function getUserPolls(user_id, token) {
                 if (response.ok) {
                     dispatch({
                         type: 'RECEIVE_POLLS_SUCCESS',
-                        polls: json
+                        polls: Array.isArray(json) ? json : json.polls,
+                        pageCount: json.pageCount
                     });
                 } else {
                     dispatch({
@@ -4767,7 +4775,12 @@ var AllPolls = function (_get__$Component) {
     _createClass(AllPolls, [{
         key: 'componentDidMount',
         value: function componentDidMount() {
-            this.props.dispatch(_get__('getAllPolls')());
+            this.props.dispatch(_get__('getPolls')(1, true));
+        }
+    }, {
+        key: 'handlePollPagination',
+        value: function handlePollPagination(pageNumber) {
+            this.props.dispatch(_get__('getPolls')(pageNumber));
         }
     }, {
         key: 'render',
@@ -4796,7 +4809,7 @@ var AllPolls = function (_get__$Component) {
                     _react2.default.createElement(
                         'div',
                         { className: 'small-12 medium-8 medium-offset-2' },
-                        _react2.default.createElement(_PollList_Component, { polls: this.props.polls })
+                        _react2.default.createElement(_PollList_Component, { polls: this.props.polls, getPolls: this.handlePollPagination.bind(this) })
                     )
                 )
             );
@@ -4843,8 +4856,8 @@ function _get__(variableName) {
 
 function _get_original__(variableName) {
     switch (variableName) {
-        case 'getAllPolls':
-            return _poll_actions.getAllPolls;
+        case 'getPolls':
+            return _poll_actions.getPolls;
 
         case 'PollList':
             return _PollList2.default;
@@ -5002,7 +5015,12 @@ var MyPolls = function (_get__$Component) {
     _createClass(MyPolls, [{
         key: 'componentDidMount',
         value: function componentDidMount() {
-            this.props.dispatch(_get__('getUserPolls')(this.props.user.id, this.props.token));
+            this.props.dispatch(_get__('getUserPolls')(this.props.user.id, this.props.token, 1, true));
+        }
+    }, {
+        key: 'handlePollPagination',
+        value: function handlePollPagination(pageNumber) {
+            this.props.dispatch(_get__('getUserPolls')(this.props.user.id, this.props.token, pageNumber));
         }
     }, {
         key: 'render',
@@ -5031,7 +5049,7 @@ var MyPolls = function (_get__$Component) {
                     _react2.default.createElement(
                         'div',
                         { className: 'small-12 medium-8 medium-offset-2' },
-                        _react2.default.createElement(_PollList_Component, { polls: this.props.polls })
+                        _react2.default.createElement(_PollList_Component, { polls: this.props.polls, getPolls: this.handlePollPagination.bind(this) })
                     )
                 )
             );
@@ -5563,17 +5581,33 @@ var PollList = function (_get__$Component) {
     function PollList() {
         _classCallCheck(this, PollList);
 
-        return _possibleConstructorReturn(this, Object.getPrototypeOf(PollList).apply(this, arguments));
+        var _this = _possibleConstructorReturn(this, Object.getPrototypeOf(PollList).call(this));
+
+        _this.state = {
+            pageNumber: 1
+        };
+        return _this;
     }
 
     _createClass(PollList, [{
+        key: 'handlePageChange',
+        value: function handlePageChange(nextPage) {
+            console.log(nextPage);
+            if (nextPage > 0 && nextPage <= this.props.polls.pageCount) {
+                this.props.getPolls(nextPage);
+                this.setState({ pageNumber: nextPage });
+            }
+        }
+    }, {
         key: 'render',
         value: function render() {
+
             var loading = this.props.polls.isFetching ? _react2.default.createElement(
                 'div',
                 null,
                 'Loading...'
             ) : null;
+
             var mappedPolls = this.props.polls.items.map(function (item) {
                 var _Link_Component = _get__('Link');
 
@@ -5626,14 +5660,106 @@ var PollList = function (_get__$Component) {
                     )
                 );
             });
+
+            var nextPages = [];
+            var previousPages = [];
+            var currentPageNumber = this.state.pageNumber;
+            var totalPageNumber = this.props.polls.pageCount;
+            for (var i = 1; i <= 3; i++) {
+                if (currentPageNumber + i <= totalPageNumber) {
+                    nextPages.push(_react2.default.createElement(
+                        'li',
+                        null,
+                        _react2.default.createElement(
+                            'a',
+                            { href: '#', 'aria-label': 'Page' + (currentPageNumber + i),
+                                key: currentPageNumber + i,
+                                onClick: this.handlePageChange.bind(this, currentPageNumber + i) },
+                            currentPageNumber + i
+                        )
+                    ));
+                } else if (currentPageNumber - i >= 1) {
+                    previousPages.push(_react2.default.createElement(
+                        'li',
+                        null,
+                        _react2.default.createElement(
+                            'a',
+                            { href: '#', 'aria-label': 'Page' + (currentPageNumber - i),
+                                key: currentPageNumber - i,
+                                onClick: this.handlePageChange.bind(this, currentPageNumber - i) },
+                            currentPageNumber - i
+                        )
+                    ));
+                }
+            }
+
             return _react2.default.createElement(
                 'div',
-                { className: 'poll-list' },
-                loading,
+                null,
                 _react2.default.createElement(
-                    'ul',
-                    null,
-                    mappedPolls
+                    'div',
+                    { className: 'poll-list' },
+                    loading,
+                    _react2.default.createElement(
+                        'ul',
+                        null,
+                        mappedPolls
+                    )
+                ),
+                _react2.default.createElement(
+                    'div',
+                    { className: 'pagination-wrapper' },
+                    _react2.default.createElement(
+                        'ul',
+                        { className: 'pagination', role: 'navigation', 'aria-label': 'Pagination' },
+                        _react2.default.createElement(
+                            'li',
+                            { className: 'pagination-previous' },
+                            _react2.default.createElement(
+                                'a',
+                                { href: '#',
+                                    onClick: this.handlePageChange.bind(this, this.state.pageNumber - 1),
+                                    className: this.state.pageNumber > 1 ? "" : "disabled",
+                                    'aria-label': 'Next page' },
+                                'Previous',
+                                _react2.default.createElement(
+                                    'span',
+                                    { className: 'show-for-sr' },
+                                    'page'
+                                )
+                            )
+                        ),
+                        previousPages,
+                        _react2.default.createElement(
+                            'li',
+                            { className: 'current' },
+                            _react2.default.createElement(
+                                'span',
+                                { className: 'show-for-sr' },
+                                'You\'re on page'
+                            ),
+                            ' ',
+                            this.state.pageNumber
+                        ),
+                        nextPages,
+                        _react2.default.createElement(
+                            'li',
+                            { className: 'pagination-next' },
+                            _react2.default.createElement(
+                                'a',
+                                { href: '#',
+                                    onClick: this.handlePageChange.bind(this, this.state.pageNumber + 1),
+                                    className: this.state.pageNumber < totalPageNumber ? "" : "disabled",
+                                    'aria-label': 'Next page' },
+                                'Next',
+                                _react2.default.createElement(
+                                    'span',
+                                    { className: 'show-for-sr' },
+                                    'page'
+                                )
+                            )
+                        )
+                    )
                 )
             );
         }
@@ -6893,7 +7019,8 @@ function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr
 
 var initialState = {
     isFetching: false,
-    items: []
+    items: [],
+    pageCount: 0
 };
 
 function polls() {
@@ -6908,7 +7035,11 @@ function polls() {
                 };
             case 'RECEIVE_POLLS_SUCCESS':
                 return {
-                    v: Object.assign({}, state, { isFetching: false, items: action.polls.slice() })
+                    v: Object.assign({}, state, {
+                        isFetching: false,
+                        items: action.polls.slice(),
+                        pageCount: action.pageCount || state.pageCount
+                    })
                 };
             case 'VOTE_SUCCESS':
                 return {

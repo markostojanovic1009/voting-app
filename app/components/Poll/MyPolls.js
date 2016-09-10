@@ -10,7 +10,11 @@ class MyPolls extends React.Component {
     }
 
     componentDidMount() {
-        this.props.dispatch(getUserPolls(this.props.user.id, this.props.token));
+        this.props.dispatch(getUserPolls(this.props.user.id, this.props.token, 1, true));
+    }
+
+    handlePollPagination(pageNumber) {
+        this.props.dispatch(getUserPolls(this.props.user.id, this.props.token, pageNumber));
     }
 
     render() {
@@ -24,7 +28,7 @@ class MyPolls extends React.Component {
 
                 <div className="row">
                     <div className="small-12 medium-8 medium-offset-2">
-                        <PollList polls={this.props.polls} />
+                        <PollList polls={this.props.polls} getPolls={this.handlePollPagination.bind(this)}/>
                     </div>
                 </div>
             </div>

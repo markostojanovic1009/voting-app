@@ -11,7 +11,8 @@ function sendRequest(route, method) {
                 if (response.ok) {
                     dispatch({
                         type: 'RECEIVE_POLLS_SUCCESS',
-                        polls: json
+                        polls: Array.isArray(json) ? json : json.polls,
+                        pageCount: json.pageCount
                     });
                 } else {
                     dispatch({
@@ -24,20 +25,20 @@ function sendRequest(route, method) {
     };
 }
 
-export function getAllPolls() {
-    return sendRequest('/api/polls');
+export function getPolls(pageNumber = 1, getPageCount = false) {
+    return sendRequest(`/api/polls?page=${pageNumber}${getPageCount ? "&page_count" : ""}`);
 }
 
 export  function getPoll(pollId) {
     return sendRequest(`/api/poll/${pollId}`);
 }
 
-export function getUserPolls(user_id, token) {
+export function getUserPolls(user_id, token, pageNumber = 1, getPageCount = false) {
     return (dispatch) => {
         dispatch({
             type: 'FETCH_POLLS',
         });
-        return fetch(`/api/polls?user_id=${user_id}`, {
+        return fetch(`/api/polls?user_id=${user_id}&page=${pageNumber}${getPageCount ? "&page_count" : ""}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -48,7 +49,8 @@ export function getUserPolls(user_id, token) {
                 if (response.ok) {
                     dispatch({
                         type: 'RECEIVE_POLLS_SUCCESS',
-                        polls: json
+                        polls: Array.isArray(json) ? json : json.polls,
+                        pageCount: json.pageCount
                     });
                 } else {
                     dispatch({

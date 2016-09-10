@@ -101,7 +101,7 @@ app.use(function(req, res) {
   var initialState = {
     auth: { token: req.cookies.token, user: req.user },
     messages: {},
-    polls: { isFetching: false, items: [] }
+    polls: { isFetching: false, items: [], pageCount: 0 }
   };
 
   var store = configureStore(initialState);

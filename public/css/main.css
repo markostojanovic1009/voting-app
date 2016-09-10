@@ -59,6 +59,10 @@
   margin-left: 30px;
   color: #0FA301; }
 
+.pagination-wrapper {
+  margin: 10px 0 30px;
+  text-align: center; }
+
 .single-poll-select {
   margin-left: 10px;
   width: 60%; }
@@ -2801,15 +2805,10 @@ select {
   .pagination::after {
     clear: both; }
   .pagination li {
-    font-size: 0.875rem;
+    font-size: 1.1em;
     margin-right: 0.0625rem;
     border-radius: 0;
-    display: none; }
-    .pagination li:last-child, .pagination li:first-child {
-      display: inline-block; }
-    @media screen and (min-width: 40em) {
-      .pagination li {
-        display: inline-block; } }
+    display: inline-block; }
   .pagination a,
   .pagination button {
     color: #0a0a0a;
@@ -2821,7 +2820,7 @@ select {
       background: #e6e6e6; }
   .pagination .current {
     padding: 0.1875rem 0.625rem;
-    background: #2199e8;
+    background: #2b2929;
     color: #fefefe;
     cursor: default; }
   .pagination .disabled {
@@ -3609,7 +3608,6 @@ footer {
   position: absolute;
   left: 0;
   bottom: 0;
-  height: 50px;
   width: 100%;
   background-color: #262626;
   color: darkgray; }

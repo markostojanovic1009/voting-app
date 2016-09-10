@@ -50,6 +50,21 @@ const Poll = {
         });
     },
 
+
+    getPollPageCount(user_id) {
+        return new Promise((resolve, reject) => {
+            knex.count('id').from('polls').where(user_id ? {user_id} : {})
+                .then(([result]) => {
+                    const numberOfPolls = parseInt(result.count);
+                    resolve(numberOfPolls % 10 == 0 ? numberOfPolls / 10 : Math.floor(numberOfPolls / 10) + 1);
+                })
+                .catch((error) => {
+                    reject(genericMessage);
+                });
+        });
+
+    },
+
     /**
      * Returns polls and aggregated poll results.
      * Receives either a valid user id, in which case it returns

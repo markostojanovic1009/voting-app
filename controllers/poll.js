@@ -21,9 +21,18 @@ exports.getPolls = function(req, res) {
 
     const user_id = req.query.user_id;
     const pageNumber = req.query.page;
+    const getPageCount = req.query.page_count;
 
     Poll.getPolls(user_id, pageNumber).then((polls) => {
-        res.send(polls);
+        if(getPageCount != undefined) {
+            Poll.getPollPageCount(user_id).then((result) => {
+                res.send({pageCount: result, polls});
+            }).catch((error) => {
+                res.status(400).send(error);
+            });
+        } else {
+            res.send(polls);
+        }
     }).catch((error) => {
         res.status(400).send(error);
     });
