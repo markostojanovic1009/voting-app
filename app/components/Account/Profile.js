@@ -112,7 +112,7 @@ class Profile extends React.Component {
               <img src={this.state.gravatar} className="gravatar" width="100" height="100"/>
             </div>
           </div>
-          <button type="submit" className="success button">Update Profile</button>
+          <button type="submit" className="green-button">Update Profile</button>
         </form>
         <form onSubmit={this.handleChangePassword.bind(this)}>
           <h5>Change Password</h5>
@@ -128,7 +128,7 @@ class Profile extends React.Component {
               <input type="password" name="confirm" id="confirm" value={this.state.confirm} onChange={this.handleChange.bind(this)}/>
             </div>
           </div>
-          <button type="submit" className="success button">Change Password</button>
+          <button type="submit" className="green-button">Change Password</button>
         </form>
         <div className="row">
           <div className="medium-7 columns">

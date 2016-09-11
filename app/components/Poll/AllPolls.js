@@ -29,7 +29,9 @@ class AllPolls extends React.Component {
 
                 <div className="row">
                     <div className="small-12 medium-8 medium-offset-2">
-                        <PollList polls={this.props.polls} getPolls={this.handlePollPagination.bind(this)}/>
+                        <PollList polls={this.props.polls}
+                                  getPolls={this.handlePollPagination.bind(this)}
+                                  messages={this.props.messages}/>
                     </div>
                 </div>
 

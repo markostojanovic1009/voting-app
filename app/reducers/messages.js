@@ -20,6 +20,7 @@ export default function messages(state = {}, action) {
     case 'CONTACT_FORM_SUCCESS':
     case 'VOTE_SUCCESS':
     case 'UPDATE_POLL_SUCCESS':
+    case 'DELETE_POLL_SUCCESS':
       return {
         success: action.messages
       };
@@ -27,6 +28,7 @@ export default function messages(state = {}, action) {
     case 'DELETE_ACCOUNT_SUCCESS':
     case 'UNLINK_SUCCESS':
     case 'VOTE_FAILURE':
+    case 'DELETE_POLL_FAILURE':
       return {
         info: action.messages
       };

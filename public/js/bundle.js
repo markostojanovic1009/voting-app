@@ -29,7 +29,7 @@ var _reactRouter = require('react-router');
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-function login(email, password) {
+function login(email, password, redirectPath) {
   return function (dispatch) {
     dispatch({
       type: 'CLEAR_MESSAGES'
@@ -50,7 +50,11 @@ function login(email, password) {
             user: json.user
           });
           _get__('cookie').save('token', json.token, { expires: _get__('moment')().add(1, 'hour').toDate() });
-          _get__('browserHistory').push('/');
+          if (redirectPath) {
+            _get__('browserHistory').push('' + decodeURIComponent(redirectPath));
+          } else {
+            _get__('browserHistory').push('/');
+          }
         });
       } else {
         return response.json().then(function (json) {
@@ -416,7 +420,7 @@ var _reactRouter = require('react-router');
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 // Sign in with Facebook
-function facebookLogin() {
+function facebookLogin(redirectPath) {
   var facebook = {
     url: 'http://localhost:3000/auth/facebook',
     clientId: '763886170417545',
@@ -424,7 +428,8 @@ function facebookLogin() {
     authorizationUrl: 'https://www.facebook.com/v2.7/dialog/oauth',
     scope: 'email,user_location',
     width: 580,
-    height: 400
+    height: 400,
+    redirectPath: redirectPath
   };
 
   return function (dispatch) {
@@ -433,11 +438,12 @@ function facebookLogin() {
 }
 
 // Sign in with Twitter
-function twitterLogin() {
+function twitterLogin(redirectPath) {
   var twitter = {
     url: 'http://localhost:3000/auth/twitter',
     redirectUri: 'http://localhost:3000/auth/twitter/callback',
-    authorizationUrl: 'https://api.twitter.com/oauth/authenticate'
+    authorizationUrl: 'https://api.twitter.com/oauth/authenticate',
+    redirectPath: redirectPath
   };
 
   return function (dispatch) {
@@ -446,7 +452,7 @@ function twitterLogin() {
 }
 
 // Sign in with Google
-function googleLogin() {
+function googleLogin(redirectPath) {
   var google = {
     url: 'http://localhost:3000/auth/google',
     clientId: '907244779641-aotpjepfhsev2kn2655v58g6ugns2cer.apps.googleusercontent.com',
@@ -454,7 +460,8 @@ function googleLogin() {
     authorizationUrl: 'https://accounts.google.com/o/oauth2/auth',
     scope: 'openid profile email',
     width: 452,
-    height: 633
+    height: 633,
+    redirectPath: redirectPath
   };
 
   return function (dispatch) {
@@ -463,7 +470,7 @@ function googleLogin() {
 }
 
 // Sign in with Github
-function githubLogin() {
+function githubLogin(redirectPath) {
   var github = {
     url: 'http://localhost:3000/auth/github',
     clientId: 'ab3e0fd83cebd3b7507d',
@@ -471,7 +478,8 @@ function githubLogin() {
     authorizationUrl: 'https://github.com/login/oauth/authorize',
     scope: 'user:email profile repo',
     width: 452,
-    height: 633
+    height: 633,
+    redirectPath: redirectPath
   };
 
   return function (dispatch) {
@@ -658,7 +666,7 @@ function exchangeCodeForToken(_ref4) {
     }).then(function (response) {
       if (response.ok) {
         return response.json().then(function (json) {
-          resolve({ token: json.token, user: json.user, window: window, interval: interval, dispatch: dispatch });
+          resolve({ token: json.token, user: json.user, window: window, interval: interval, dispatch: dispatch, redirectPath: config.redirectPath });
         });
       } else {
         return response.json().then(function (json) {
@@ -679,6 +687,7 @@ function signIn(_ref5) {
   var window = _ref5.window;
   var interval = _ref5.interval;
   var dispatch = _ref5.dispatch;
+  var redirectPath = _ref5.redirectPath;
 
   return new Promise(function (resolve, reject) {
     dispatch({
@@ -687,7 +696,11 @@ function signIn(_ref5) {
       user: user
     });
     _get__('cookie').save('token', token, { expires: _get__('moment')().add(1, 'hour').toDate() });
-    _get__('browserHistory').push('/');
+    if (redirectPath) {
+      _get__('browserHistory').push('' + decodeURIComponent(redirectPath));
+    } else {
+      _get__('browserHistory').push('/');
+    }
     resolve({ window: window, interval: interval });
   });
 }
@@ -1022,9 +1035,11 @@ function createPoll(title, options, userId, token) {
 }
 
 function addOptions(poll_id, options, token) {
+
     var filteredOptions = options.filter(function (option) {
         return option.text.length > 0;
     });
+
     return function (dispatch) {
         return fetch('/api/poll/' + poll_id, {
             method: 'PUT',
@@ -1063,7 +1078,7 @@ function deletePoll(poll_id, token) {
             headers: { 'Authorization': 'Bearer ' + token }
         }).then(function (response) {
             if (response.ok) {
-                _get__('browserHistory').push('/polls');
+                _get__('browserHistory').push('/polls/my');
                 dispatch({
                     type: 'DELETE_POLL_SUCCESS',
                     messages: [{
@@ -1281,7 +1296,7 @@ var Forgot = function (_get__$Component) {
             _react2.default.createElement('input', { type: 'email', name: 'email', id: 'email', placeholder: 'Email', value: this.state.email, onChange: this.handleChange.bind(this), autoFocus: true }),
             _react2.default.createElement(
               'button',
-              { type: 'submit', className: 'button success' },
+              { type: 'submit', className: 'green-button' },
               'Reset Password'
             )
           )
@@ -1503,27 +1518,27 @@ var Login = function (_get__$Component) {
     key: 'handleLogin',
     value: function handleLogin(event) {
       event.preventDefault();
-      this.props.dispatch(_get__('login')(this.state.email, this.state.password));
+      this.props.dispatch(_get__('login')(this.state.email, this.state.password, this.props.location.query.redirect));
     }
   }, {
     key: 'handleFacebook',
     value: function handleFacebook() {
-      this.props.dispatch(_get__('facebookLogin')());
+      this.props.dispatch(_get__('facebookLogin')(this.props.location.query.redirect));
     }
   }, {
     key: 'handleTwitter',
     value: function handleTwitter() {
-      this.props.dispatch(_get__('twitterLogin')());
+      this.props.dispatch(_get__('twitterLogin')(this.props.location.query.redirect));
     }
   }, {
     key: 'handleGoogle',
     value: function handleGoogle() {
-      this.props.dispatch(_get__('googleLogin')());
+      this.props.dispatch(_get__('googleLogin')(this.props.location.query.redirect));
     }
   }, {
     key: 'handleGithub',
     value: function handleGithub() {
-      this.props.dispatch(_get__('githubLogin')());
+      this.props.dispatch(_get__('githubLogin')(this.props.location.query.redirect));
     }
   }, {
     key: 'render',
@@ -2039,7 +2054,7 @@ var Profile = function (_get__$Component) {
           ),
           _react2.default.createElement(
             'button',
-            { type: 'submit', className: 'success button' },
+            { type: 'submit', className: 'green-button' },
             'Update Profile'
           )
         ),
@@ -2081,7 +2096,7 @@ var Profile = function (_get__$Component) {
           ),
           _react2.default.createElement(
             'button',
-            { type: 'submit', className: 'success button' },
+            { type: 'submit', className: 'green-button' },
             'Change Password'
           )
         ),
@@ -2408,7 +2423,7 @@ var Reset = function (_get__$Component) {
             _react2.default.createElement('input', { type: 'password', name: 'confirm', id: 'confirm', placeholder: 'Confirm password', value: this.state.confirm, onChange: this.handleChange.bind(this) }),
             _react2.default.createElement(
               'button',
-              { type: 'submit', className: 'success button' },
+              { type: 'submit', className: 'green-button' },
               'Change Password'
             )
           )
@@ -4444,7 +4459,9 @@ var AllPolls = function (_get__$Component) {
                     _react2.default.createElement(
                         'div',
                         { className: 'small-12 medium-8 medium-offset-2' },
-                        _react2.default.createElement(_PollList_Component, { polls: this.props.polls, getPolls: this.handlePollPagination.bind(this) })
+                        _react2.default.createElement(_PollList_Component, { polls: this.props.polls,
+                            getPolls: this.handlePollPagination.bind(this),
+                            messages: this.props.messages })
                     )
                 )
             );
@@ -4684,7 +4701,9 @@ var MyPolls = function (_get__$Component) {
                     _react2.default.createElement(
                         'div',
                         { className: 'small-12 medium-8 medium-offset-2' },
-                        _react2.default.createElement(_PollList_Component, { polls: this.props.polls, getPolls: this.handlePollPagination.bind(this) })
+                        _react2.default.createElement(_PollList_Component, { polls: this.props.polls,
+                            getPolls: this.handlePollPagination.bind(this),
+                            messages: this.props.messages })
                     )
                 )
             );
@@ -5198,6 +5217,10 @@ var _react2 = _interopRequireDefault(_react);
 
 var _reactRouter = require('react-router');
 
+var _Messages = require('../Messages');
+
+var _Messages2 = _interopRequireDefault(_Messages);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -5330,9 +5353,12 @@ var PollList = function (_get__$Component) {
                 }
             }
 
+            var _Messages_Component = _get__('Messages');
+
             return _react2.default.createElement(
                 'div',
                 null,
+                _react2.default.createElement(_Messages_Component, { messages: this.props.messages }),
                 _react2.default.createElement(
                     'div',
                     { className: 'poll-list' },
@@ -5439,6 +5465,9 @@ function _get_original__(variableName) {
         case 'isNumeric':
             return isNumeric;
 
+        case 'Messages':
+            return _Messages2.default;
+
         case 'React':
             return _react2.default;
 
@@ -5542,7 +5571,7 @@ exports.__set__ = _set__;
 exports.__ResetDependency__ = _reset__;
 exports.__RewireAPI__ = _RewireAPI__;
 
-},{"react":280,"react-router":133}],19:[function(require,module,exports){
+},{"../Messages":13,"react":280,"react-router":133}],19:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -6622,6 +6651,7 @@ function messages() {
     case 'CONTACT_FORM_SUCCESS':
     case 'VOTE_SUCCESS':
     case 'UPDATE_POLL_SUCCESS':
+    case 'DELETE_POLL_SUCCESS':
       return {
         success: action.messages
       };
@@ -6629,6 +6659,7 @@ function messages() {
     case 'DELETE_ACCOUNT_SUCCESS':
     case 'UNLINK_SUCCESS':
     case 'VOTE_FAILURE':
+    case 'DELETE_POLL_FAILURE':
       return {
         info: action.messages
       };
@@ -6929,7 +6960,7 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 function getRoutes(store) {
   var ensureAuthenticated = function ensureAuthenticated(nextState, replace) {
     if (!store.getState().auth.token) {
-      replace('/login');
+      replace('/login?redirect=' + encodeURIComponent(nextState.routes[1].path));
     }
   };
   var skipIfAuthenticated = function skipIfAuthenticated(nextState, replace) {

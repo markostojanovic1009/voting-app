@@ -1,5 +1,6 @@
 import React from 'react';
 import {Link} from 'react-router';
+import Messages from '../Messages';
 
 function isNumeric(n) {
     return !isNaN(parseFloat(n)) && isFinite(n);
@@ -82,6 +83,7 @@ class PollList extends React.Component {
 
         return(
             <div>
+                <Messages messages={this.props.messages} />
                 <div className="poll-list">
                     {loading}
                     <ul>

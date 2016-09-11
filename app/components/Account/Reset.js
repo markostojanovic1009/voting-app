@@ -29,7 +29,7 @@ class Reset extends React.Component {
             <input type="password" name="password" id="password" placeholder="New password" value={this.state.password} onChange={this.handleChange.bind(this)} autoFocus/>
             <label htmlFor="confirm">Confirm Password</label>
             <input type="password" name="confirm" id="confirm" placeholder="Confirm password" value={this.state.confirm} onChange={this.handleChange.bind(this)}/>
-            <button type="submit" className="success button">Change Password</button>
+            <button type="submit" className="green-button">Change Password</button>
           </form>
         </div>
       </div>
