@@ -2,5 +2,5 @@
 
 set -o errexit # Exit on error
 
-echo "Arguments passed to bash.sh: $@";
+echo "Running tests on test/server/$1/$2.test.js";
 NODE_ENV=test mocha test/server/$1/$2.test.js --compilers js:babel-register

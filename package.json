@@ -5,12 +5,12 @@
   "scripts": {
     "build": "gulp build",
     "build:production": "gulp build --production",
-    "custom-bash": "./config/bash.sh",
     "deploy": "npm test && git push heroku master",
     "knex": "knex",
     "postinstall": "npm run build:production",
     "start": "node server.js",
     "test": "npm run test:client && npm run test:server",
+    "test-script": "./config/run_test_bash.sh",
     "test:client": "mocha test/client --recursive --compilers js:babel-register",
     "test:controllers": "NODE_ENV=test mocha test/server/controllers --recursive --compilers js:babel-register",
     "test:models": "NODE_ENV=test mocha test/server/models --recursive --compilers js:babel-register",
