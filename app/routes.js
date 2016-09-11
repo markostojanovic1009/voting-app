@@ -16,7 +16,7 @@ import MyPolls from './components/Poll/MyPolls';
 export default function getRoutes(store) {
   const ensureAuthenticated = (nextState, replace) => {
     if (!store.getState().auth.token) {
-      replace('/login');
+      replace(`/login?redirect=${encodeURIComponent(nextState.routes[1].path)}`);
     }
   };
   const skipIfAuthenticated = (nextState, replace) => {

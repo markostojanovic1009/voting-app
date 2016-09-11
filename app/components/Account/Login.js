@@ -17,24 +17,24 @@ class Login extends React.Component {
 
   handleLogin(event) {
     event.preventDefault();
-    this.props.dispatch(login(this.state.email, this.state.password));
+    this.props.dispatch(login(this.state.email, this.state.password, this.props.location.query.redirect));
   }
 
   handleFacebook() {
-    this.props.dispatch(facebookLogin())
+    this.props.dispatch(facebookLogin(this.props.location.query.redirect));
   }
 
   handleTwitter() {
-    this.props.dispatch(twitterLogin())
+    this.props.dispatch(twitterLogin(this.props.location.query.redirect));
   }
 
   handleGoogle() {
-    this.props.dispatch(googleLogin())
+    this.props.dispatch(googleLogin(this.props.location.query.redirect));
   }
 
 
   handleGithub() {
-    this.props.dispatch(githubLogin())
+    this.props.dispatch(githubLogin(this.props.location.query.redirect));
   }
 
   render() {

@@ -2,7 +2,7 @@ import moment from 'moment';
 import cookie from 'react-cookie';
 import { browserHistory } from 'react-router';
 
-export function login(email, password) {
+export function login(email, password, redirectPath) {
   return (dispatch) => {
     dispatch({
       type: 'CLEAR_MESSAGES'
@@ -23,7 +23,11 @@ export function login(email, password) {
             user: json.user
           });
           cookie.save('token', json.token, { expires: moment().add(1, 'hour').toDate() });
-          browserHistory.push('/');
+          if(redirectPath) {
+            browserHistory.push(`${decodeURIComponent(redirectPath)}`);
+          } else {
+            browserHistory.push('/');
+          }
         });
       } else {
         return response.json().then((json) => {

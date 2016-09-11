@@ -140,9 +140,11 @@ export function createPoll(title, options, userId, token) {
 }
 
 export function addOptions(poll_id, options, token) {
+
     const filteredOptions = options.filter((option) => {
         return option.text.length > 0;
     });
+
     return (dispatch) => {
         return fetch(`/api/poll/${poll_id}`, {
             method: 'PUT',
@@ -181,7 +183,7 @@ export function deletePoll(poll_id, token) {
             headers: { 'Authorization': `Bearer ${token}`}
         }).then((response) => {
             if(response.ok) {
-                browserHistory.push('/polls');
+                browserHistory.push('/polls/my');
                 dispatch({
                     type: 'DELETE_POLL_SUCCESS',
                     messages: [{
