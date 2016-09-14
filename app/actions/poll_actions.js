@@ -123,7 +123,7 @@ export function createPoll(title, options, userId, token) {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`
                 },
-                body: JSON.stringify({title, options: filteredOptions, userId})
+                body: JSON.stringify({title, options: filteredOptions, user_id: userId})
             }).then((response) => {
                 return response.json().then((json) => {
                     if (response.ok) {

@@ -37,6 +37,10 @@ const Poll = {
      */
     createPoll(user_id, title) {
         return new Promise((resolve, reject) => {
+            if(!title || title.trim().length === 0)
+                reject({
+                    msg: "Title cannot be empty."
+                });
             knex('polls').returning(['id', 'user_id', 'title']).insert({user_id, title})
                 .then(([poll]) => {
                     resolve(poll);
@@ -166,6 +170,13 @@ const Poll = {
 
             if (!Array.isArray(pollOptions))
                 reject({ msg: 'Second argument must be an array.'});
+
+            pollOptions.forEach((option) => {
+                if(!option.text || option.text.trim().length === 0)
+                    reject({
+                        msg: "An option cannot be empty."
+                    });
+            });
 
             // Add a poll_id foreign key to each poll option
             const mappedOptions = pollOptions.map((item) => { return {...item, poll_id }; });
