@@ -7,11 +7,14 @@ html
     title= title
     link(rel='stylesheet', href='/css/main.css')
     script(src='/js/lib/jquery.js')
+
+    // Load 3rd party charting library
     script(src='/js/lib/highcharts.min.js')
     script(src='/js/lib/highcharts3d.min.js')
   body
     #app!= html
     script.
+      // Set initial state
       window.INITIAL_STATE = !{JSON.stringify(initialState)}
 
     script(src='/js/lib/foundation.js')

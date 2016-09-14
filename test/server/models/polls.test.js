@@ -43,27 +43,39 @@ describe('Poll Model', () => {
         facebook: 'http://facebook.com/johndoe',
         google: 'http://plus.google.com/johndoe',
         twitter: 'http://twitter.com/johndoe',
-        github: 'http://github.com/johndoe'
+        github: 'http://github.com/johndoe',
+        id: 1
     };
 
-    const createUser = () => {
-        return knex('users')
-            .insert({ ...genericUser, password: bcrypt.hashSync(genericUser.password, bcrypt.genSaltSync(10))});
+    const numberOfUsers = 1;
+    const numberOfPolls = 20;
+    const numberOfOptionsPerPoll = 3;
+    const numberOfVotes = 100;
+
+    const createPoll = () => {
+        return knex('polls').insert({user_id: genericUser.id, title: 'New poll.'}).returning(['id', 'user_id', 'title']);
+    };
+
+    const createPollWithOptions = () => {
+        return createPoll().then(([poll]) => {
+            return knex('poll_options').insert([
+                {poll_id: poll.id, text: 'Poll Option 1'},
+                {poll_id: poll.id, text: 'Poll Option 2'}
+            ]).returning(['id']);
+        });
     };
 
     describe('createPoll', () => {
 
         it('should create a new poll', () => {
-
+            const newPollTitle = 'New poll';
             return expect(
-                createUser().then(() => {
-                    return Poll.createPoll(1, 'New poll');
-                }).then(() => {
-                    return knex.select('title').from('polls');
+                Poll.createPoll(genericUser.id, newPollTitle).then(() => {
+                    return knex.select('title').from('polls').where('title', newPollTitle);
                 }).then(([poll]) => {
                     return poll;
                 })
-            ).to.eventually.deep.equal({title: 'New poll'});
+            ).to.eventually.deep.equal({title: newPollTitle});
 
         });
 
@@ -76,34 +88,21 @@ describe('Poll Model', () => {
 
     });
 
-    const createPoll = () => {
-      return createUser().then(() => {
-          return knex('polls').insert({user_id: 1, title: 'New poll.'}).returning(['id', 'user_id', 'title']);
-      });
-    };
-
     describe('getPolls', () => {
 
         it('should return all existing polls with at least one option', () => {
             return expect(
-                createUser().then(() => {
-                    return knex('polls').insert([{user_id: 1, title: "Poll 1"}, {user_id: 1, title: "Poll 2"}]);
-                }).then(() => {
-                    return knex('poll_options').insert([{poll_id: 1, text: 'Option 1'}, {poll_id: 2, text: 'Option 2'}]);
-                }).then(() => {
-                    return Poll.getPolls();
-                })
-            ).to.eventually.have.lengthOf(2);
+                Poll.getPolls()
+            ).to.eventually.have.lengthOf(10);
         });
 
         it('should not return polls with 0 options', () => {
             return expect(
-                createUser().then(() => {
-                    return knex('polls').insert([{user_id: 1, title: "Poll 1"}, {user_id: 1, title: "Poll 2"}]);
-                }).then(() => {
-                    return Poll.getPolls();
-                })
-            ).to.eventually.have.lengthOf(0);
+                knex('polls').insert([{user_id: genericUser.id, title: "Poll 1"}, {user_id: genericUser.id, title: "Poll 2"}])
+                    .then(() => {
+                        return Poll.getPolls();
+                    })
+            ).to.eventually.have.lengthOf(8); // Two newest polls are invalid
         });
 
     });
@@ -112,50 +111,44 @@ describe('Poll Model', () => {
 
         it('should add new options to the poll', () => {
             const pollOptions = [{text: 'Poll option1'}, {text: 'Poll option2'}];
+            let poll_id = 1;
             return expect(
                 createPoll().then(([poll]) => {
+                    poll_id = poll.id;
                     return Poll.addPollOptions(poll.id, pollOptions);
                 }).then(() => {
-                    return knex.select('text').from('poll_options');
+                    return knex.select('text').from('poll_options').where('poll_id', poll_id);
                 })
             ).to.eventually.deep.equal(pollOptions);
         });
 
         it('should return an error if poll id is wrong', () => {
             return expect(
-                Poll.addPollOptions(5, [{text: 'Poll Option 1'}])
+                Poll.addPollOptions(100, [{text: 'Poll Option 1'}])
             ).to.be.rejected.and.eventually.deep.equal({msg: 'Wrong poll id.'});
         });
 
         it('should return an error if second parameter is not an array', () => {
             return expect(
-                Poll.addPollOptions(5, 'Not an array')
+                Poll.addPollOptions(1, 'Not an array')
             ).to.be.rejected.and.eventually.deep.equal({ msg: 'Second argument must be an array.'});
         })
 
     });
 
-    const createPollWithOptions = () => {
-        return createPoll().then(([poll]) => {
-            return knex('poll_options').insert([
-                {poll_id: poll.id, text: 'Poll Option 1'},
-                {poll_id: poll.id, text: 'Poll Option 2'}
-                ]).returning(['id']);
-        });
-    };
 
     describe('voteFor', () => {
 
         it('should add a new vote', () => {
             return expect(
                 createPollWithOptions().then((pollOptionsIds) => {
-                    return Poll.voteFor(1, pollOptionsIds[0].id, 1, '127.0.0.1');
+                    return Poll.voteFor(1, pollOptionsIds[0].id, genericUser.id, '127.0.0.1');
                 }).then(() => {
                     return knex('votes').count('poll_option_id');
                 }).then(([result]) => {
                     return parseInt(result.count);
                 })
-            ).to.eventually.deep.equal(1);
+            ).to.eventually.deep.equal(numberOfVotes + 1);
         });
 
         it('should return an error if user_id is wrong', () => {
@@ -163,10 +156,6 @@ describe('Poll Model', () => {
             return expect(
                 createPollWithOptions().then((pollOptionsIds) => {
                     return Poll.voteFor(1, pollOptionsIds[0].id, 100, '127.0.0.1');
-                }).then(() => {
-                    return knex('votes').count('poll_option_id');
-                }).then(([result]) => {
-                    return parseInt(result.count);
                 })
             ).to.be.rejected.and.eventually.deep.equal({msg: 'Wrong user id.'});
 
@@ -176,11 +165,7 @@ describe('Poll Model', () => {
 
             return expect(
                 createPollWithOptions().then((pollOptionsIds) => {
-                    return Poll.voteFor(1, 100, 1, '127.0.0.1');
-                }).then(() => {
-                    return knex('votes').count('poll_option_id');
-                }).then(([result]) => {
-                    return parseInt(result.count);
+                    return Poll.voteFor(1, 100, genericUser.id, '127.0.0.1');
                 })
             ).to.be.rejected.and.eventually.deep.equal({msg: 'Wrong poll option id.'});
 
@@ -192,9 +177,9 @@ describe('Poll Model', () => {
             return expect(
                 createPollWithOptions().then((pollOptionIds) => {
                     pollOptions = pollOptionIds;
-                    return Poll.voteFor(1, pollOptionIds[0].id, 1, null);
+                    return Poll.voteFor(numberOfPolls + 1, pollOptionIds[0].id, genericUser.id, null);
                 }).then(() => {
-                    return Poll.voteFor(1, pollOptions[0].id, 1, null);
+                    return Poll.voteFor(numberOfPolls + 1, pollOptions[1].id, genericUser.id, null);
                 })
             ).to.be.rejected.and.eventually.deep.equal({msg: "You cannot vote more than once."});
 
@@ -206,9 +191,9 @@ describe('Poll Model', () => {
             return expect(
                 createPollWithOptions().then((pollOptionIds) => {
                     pollOptions = pollOptionIds;
-                    return Poll.voteFor(1, pollOptionIds[0].id, null, '127.0.0.1');
+                    return Poll.voteFor(numberOfPolls + 1, pollOptionIds[0].id, null, '127.0.0.1');
                 }).then(() => {
-                    return Poll.voteFor(1, pollOptions[0].id, null, '127.0.0.1');
+                    return Poll.voteFor(numberOfPolls + 1, pollOptions[1].id, null, '127.0.0.1');
                 })
             ).to.be.rejected.and.eventually.deep.equal({msg: "You cannot vote more than once."});
 
@@ -233,20 +218,20 @@ describe('Poll Model', () => {
                         }
                         return knex('votes').insert(insertArray)
                     }).then(() => {
-                        return Poll.getPollVotes(1)
+                        return Poll.getPollVotes(numberOfPolls + 1)
                     })
             ).to.eventually.deep.equal([
                 {
-                    id: 1,
+                    id: numberOfPolls + 1,
                     options: [
                         {
                             count: 5,
-                            poll_option_id: 1,
+                            poll_option_id: numberOfOptionsPerPoll * numberOfPolls + 1,
                             text: 'Poll Option 1'
                         },
                         {
                             count: 5,
-                            poll_option_id: 2,
+                            poll_option_id: numberOfOptionsPerPoll * numberOfPolls + 2,
                             text: 'Poll Option 2'
                         }
                     ],
@@ -308,11 +293,11 @@ describe('Poll Model', () => {
                     }
                     return knex('votes').insert(insertArray);
                 }).then(() => {
-                    return Poll.deletePoll(1);
+                    return Poll.deletePoll(numberOfPolls + 1);
                 }).then(() => {
                     return knex.select().from('votes');
                 })
-            ).to.eventually.deep.equal([]);
+            ).to.eventually.have.lengthOf(numberOfVotes);
 
         })
 

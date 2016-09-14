@@ -1,8 +1,17 @@
+/**
+ * knexfile.js
+ * Initializes knex settings. See more at knexjs.org.
+ */
+
+// Loads environment variables, such as DB_HOST or DB_USER.
 if(process.env.NODE_ENV !== 'production') {
   var dotenv = require('dotenv');
   dotenv.load();
 }
+
+// Add 'debug: true' to see SQL queries in console.
 module.exports = {
+
   test: {
     client: 'pg',
     connection: {
@@ -18,6 +27,7 @@ module.exports = {
       directory: __dirname + '/seeds/test'
     }
   },
+
   development: {
     client: 'pg',
     connection: {
@@ -34,6 +44,7 @@ module.exports = {
     }
   },
 
+  // Production loads directly from database url
   production: {
     client: 'pg',
     connection: process.env.DATABASE_URL,
