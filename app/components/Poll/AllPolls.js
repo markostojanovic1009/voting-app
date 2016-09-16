@@ -9,12 +9,10 @@ class AllPolls extends React.Component {
         super();
     }
 
-    // Initial call to get all polls from the first page.
     componentDidMount() {
         this.props.dispatch(getPolls(1, true));
     }
 
-    // Get additional pages of polls.
     handlePollPagination(pageNumber) {
         this.props.dispatch(getPolls(pageNumber));
     }

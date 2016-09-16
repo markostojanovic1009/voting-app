@@ -2,6 +2,9 @@ import React from 'react';
 import {Link} from 'react-router';
 import Messages from '../Messages';
 
+function isNumeric(n) {
+    return !isNaN(parseFloat(n)) && isFinite(n);
+}
 class PollList extends React.Component {
 
     constructor() {
@@ -12,6 +15,7 @@ class PollList extends React.Component {
     }
 
     handlePageChange(nextPage) {
+        console.log(nextPage);
         if(nextPage > 0 && nextPage <= this.props.polls.pageCount) {
             this.props.getPolls(nextPage);
             this.setState({pageNumber: nextPage});
@@ -41,7 +45,8 @@ class PollList extends React.Component {
                                         <p className="poll-option-text">
                                             {option.text}
                                             <span className="poll-option-percentage">
-                                                {`${option.percentage}%`}
+                                                {isNumeric(option.percentage) ? `${option.percentage}%`
+                                                    : option.percentage}
                                             </span>
                                         </p>
                                         <hr />
@@ -58,9 +63,6 @@ class PollList extends React.Component {
         let previousPages = [];
         const currentPageNumber = this.state.pageNumber;
         const totalPageNumber = this.props.polls.pageCount;
-
-        // Creates links to up to 2 previous pages,
-        // and up to 2 next pages.
         for(let i = 1; i <= 2; i++) {
             if(currentPageNumber + i <= totalPageNumber) {
                 nextPages.push(
@@ -81,39 +83,30 @@ class PollList extends React.Component {
 
         return(
             <div>
-
                 <Messages messages={this.props.messages} />
-
                 <div className="poll-list">
                     {loading}
                     <ul>
                         {mappedPolls}
                     </ul>
                 </div>
-
                 <div className="pagination-wrapper">
                     <ul className="pagination" role="navigation" aria-label="Pagination">
-
                         <li className='pagination-previous'>
                             <a href="#"
                                onClick={this.handlePageChange.bind(this, this.state.pageNumber - 1)}
                                className={this.state.pageNumber > 1 ? "" : "disabled" }
                                aria-label="Next page">Previous<span className="show-for-sr">page</span></a>
                         </li>
-
                         {previousPages}
-
                         <li className="current"><span className="show-for-sr">You're on page</span> {this.state.pageNumber}</li>
-
                         {nextPages}
-
                         <li className={`pagination-next`}>
                             <a href="#"
                                onClick={this.handlePageChange.bind(this, this.state.pageNumber + 1)}
                                className={this.state.pageNumber < totalPageNumber ? "" : "disabled" }
                                aria-label="Next page">Next<span className="show-for-sr">page</span></a>
                         </li>
-
                     </ul>
                 </div>
             </div>

@@ -179,8 +179,6 @@ function openPopup({ url, config, dispatch }) {
   });
 }
 
-
-// Only for Twitter OAuth 1.0
 function getRequestToken({ window, config, dispatch }) {
   return new Promise((resolve, reject) => {
     return fetch(config.url, {

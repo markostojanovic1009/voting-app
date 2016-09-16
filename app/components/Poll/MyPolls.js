@@ -9,7 +9,6 @@ class MyPolls extends React.Component {
         super();
     }
 
-    // Initial call to get the first page of user's polls.
     componentDidMount() {
         this.props.dispatch(getUserPolls(this.props.user.id, this.props.token, 1, true));
     }

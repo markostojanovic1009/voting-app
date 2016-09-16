@@ -14,9 +14,6 @@ class SinglePoll extends React.Component {
             additionalOptions: [{
                 text: ''
             }],
-
-            // Displays text fields for adding additional options,
-            // and the delete button
             displayAdditionalInput: false
         };
 
@@ -24,8 +21,6 @@ class SinglePoll extends React.Component {
 
     componentDidMount() {
         const { poll_id } = this.props.params;
-
-        // Check whether parameter is an integer
         if(!Number.isInteger(parseInt(poll_id))) {
             browserHistory.push('/*');
         } else {
@@ -40,15 +35,13 @@ class SinglePoll extends React.Component {
         const currentPollState = this.props.polls.items[0];
 
         // Draw the chart when poll info is received initially.
-        // Only redraw if poll was updated, or if the user voted.
+        // Only redraw if poll was updated, or if the user voted
         if((!prevPollState && currentPollState) || (prevPollState && currentPollState && (prevPollState.options.length < currentPollState.options.length ||
             prevPollState.total < currentPollState.total)))
             this.drawChart();
 
     }
 
-
-    // See Highcharts API for more info.
     drawChart() {
         const poll = this.props.polls.items[0];
         if(poll && poll.options.length > 0) {
@@ -141,65 +134,48 @@ class SinglePoll extends React.Component {
     }
 
     deletePoll(poll_id) {
-        this.props.dispatch(deletePoll(poll_id, this.props.token));3
+        this.props.dispatch(deletePoll(poll_id, this.props.token));
     }
 
     render() {
         const poll = this.props.polls.items[0];
 
 
-        // Share Button
         const generateTwitterUrl = function() {
-            const currentUrl = `http://localhost:3000/poll/${poll.id}`;
-            return `https://twitter.com/intent/tweet?text=${encodeURIComponent(`${poll.title} - What do you think? Vote now on ${currentUrl}`)}`;
+            return `https://twitter.com/intent/tweet?text=${encodeURIComponent(`${poll.title} - What do you think? Vote now on http://localhost:3000/poll/${poll.id}`)}`;
         };
 
         const optionPanel = poll ?
             <div>
-
                 <div className="single-poll-title">{poll.title}</div>
-
                 <div className="single-poll-options">
-
                     <select className="single-poll-select" onChange={this.handleSelectChange.bind(this)}
                             value={this.state.chosenOptionId}>
-
                         <option value={0}>Select an option</option>
-
                         {poll.options.map((option) => {
                             return(
                                 <option key={option.poll_option_id} value={option.poll_option_id}>{option.text}</option>
                             );
                         })};
-
                     </select>
-
                     <button className="single-poll-vote button"
                             onClick={this.handleVoteButtonClick.bind(this, poll.id)} >Vote</button>
-
                     <div className="twitter-button-wrapper">
-
                         <a className="twitter-share-button button"
                            href={generateTwitterUrl()}
                            data-size="large">
                             <i className="twitter-icon"></i>
                             <span className="twitter-text">Tweet</span>
                         </a>
-
                     </div>
                 </div>
             </div> : null;
 
-        // Only allow user to modify the poll if it is his.
         const modifyPollControls = poll && this.props.user && poll.owner_id == this.props.user.id ?
             <div className="modify-poll-controls">
                 { this.state.displayAdditionalInput ?
-
-                    // If 'Modify Poll' button was clicked, display panel for
-                    // modifying the poll.
                     <div>
                         <div className="row">
-
                             { this.state.additionalOptions.map((optionInput, index) => {
                                 return (
                                     <div className="small-8 column"
@@ -211,12 +187,10 @@ class SinglePoll extends React.Component {
                                     </div>
                                 );
                             }) }
-
                             <div className="small-4 column">
                                 <button className="button"
                                         onClick={this.addOptionsTextInput.bind(this)}>+</button>
                             </div>
-
                         </div>
 
                         <div className="small-4 column">
@@ -230,11 +204,7 @@ class SinglePoll extends React.Component {
                             <span className="delete-poll-warning-text">This action cannot be reverted.</span>
                         </div>
 
-                    </div>
-
-                    :
-
-                    // Otherwise just display 'Modify poll' button.
+                    </div> :
                     <div className="small-4 column">
                         <button className="button"
                                 onClick={this.displayAdditionalInput.bind(this)}>Modify poll
@@ -243,7 +213,10 @@ class SinglePoll extends React.Component {
                 }
             </div> : null;
 
-        const chart = <div id="chart"></div>;
+        const chart = (poll && poll.options.length === 0) ?
+            <div className="single-poll-no-votes">
+                Be the first one to vote!
+            </div> : <div id="chart"></div>;
 
         return(
             <div>

@@ -1,8 +1,4 @@
 import {browserHistory} from 'react-router';
-
-// Generates an HTTP request with fetch.
-// Only for fetching polls.
-// GET /api/polls
 function sendRequest(route, token) {
     return (dispatch) => {
         dispatch({
@@ -45,7 +41,6 @@ export function getUserPolls(user_id, token, pageNumber = 1, getPageCount = fals
     return sendRequest(`/api/polls?user_id=${user_id}&page=${pageNumber}${getPageCount ? "&page_count" : ""}`, token);
 }
 
-// POST /api/poll/:poll_id
 export function vote(pollId, pollOptionId, userId) {
     return (dispatch) => {
         if (pollOptionId) {
@@ -100,16 +95,14 @@ export function createPoll(title, options, userId, token) {
 
         const errors = [];
 
-        // Validate that title isn't empty
-        if(!title.trim().length) {
+        if(!title.length) {
             errors.push({
                 msg: 'Title cannot be empty.'
             });
         }
 
-        // Filter all empty options
         const filteredOptions = options.filter((option) => {
-            return option.text.trim().length > 0;
+            return option.text.length > 0;
         });
 
         if(!filteredOptions.length) {
