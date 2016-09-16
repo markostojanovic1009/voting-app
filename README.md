@@ -1,4 +1,10 @@
-## Voting app
+# Poll-it
+
+Poll-it is a new app for creating interesting polls.
+
+You can create new polls, or vote on existing ones.
+
+Share polls with your friends to find out their opinions!
 
 
 ### Backend
