@@ -20,6 +20,8 @@ class PollCreate extends React.Component {
         this.setState({ title: event.target.value });
     }
 
+    // Changes the input field value of option with
+    // this index.
     handleOptionTextChange(index, event) {
         this.setState({
             options: update( this.state.options, {
@@ -32,6 +34,8 @@ class PollCreate extends React.Component {
         });
     }
 
+    // Adds an additional text field for the additional
+    // option.
     addOptionsTextInput() {
         this.setState({
             options: update(this.state.options, {
@@ -50,6 +54,8 @@ class PollCreate extends React.Component {
 
 
     render() {
+
+        // Maps poll options to text fields.
         const mappedOptions = this.state.options.map((option, index) => {
             return (
                 <div className="small-9 medium-6 medium-offset-2 columns">
@@ -60,6 +66,8 @@ class PollCreate extends React.Component {
                 </div>
             )
         });
+
+
         return(
             <div>
 
@@ -89,7 +97,7 @@ class PollCreate extends React.Component {
                 <div className="row">
                     <div className="small-12 medium-8 medium-offset-2 columns">
                         <button className="create-poll-button green-button"
-                            onClick={this.createButtonClick.bind(this, this.props.auth)}>Create</button>
+                                onClick={this.createButtonClick.bind(this, this.props.auth)}>Create</button>
                     </div>
                 </div>
 
