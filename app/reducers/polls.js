@@ -6,17 +6,23 @@ const initialState = {
 
 export default function polls(state = initialState, action) {
     switch(action.type) {
+
         case 'FETCH_POLLS':
             return Object.assign({}, state, { isFetching: true });
+
         case 'RECEIVE_POLLS_SUCCESS':
             return Object.assign({}, state, {
                 isFetching: false,
                 items: action.polls.slice(),
-                pageCount: action.pageCount || state.pageCount
+                pageCount: action.pageCount || state.pageCount // If new page count is received, update it
             });
+
         case 'VOTE_SUCCESS':
             return Object.assign({}, state, {
                 items: state.items.map((item) => {
+
+                    // Add one to poll total count and to option vote count
+                    // for the poll/option which the user voted for.
                     if(item.id === action.poll.id) {
                         return {
                             ...item,
@@ -37,24 +43,30 @@ export default function polls(state = initialState, action) {
                     }
                 })
             });
+
         case 'UPDATE_POLL_SUCCESS':
-            const formatedOptions = action.pollOptions.map((option) => {
+
+            const formattedOptions = action.pollOptions.map((option) => {
                 return {
                     text: option.text,
                     poll_option_id: option.id,
                     count: 0
                 }
             });
+
+            // Adds additional options.
             return Object.assign({}, state, {
                 items: state.items.map((item) => {
                     return {
                         ...item,
-                        options: [...item.options, ...formatedOptions]
+                        options: [...item.options, ...formattedOptions]
                     };
                 })
             });
+
         case 'VOTE_FAILURE':
             return Object.assign({}, state);
+
         default:
             return initialState;
     }

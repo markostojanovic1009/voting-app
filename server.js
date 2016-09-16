@@ -26,7 +26,6 @@ const User = require('./models/User').default;
 
 // Controllers
 var userController = require('./controllers/user');
-var contactController = require('./controllers/contact');
 const pollController = require('./controllers/poll');
 
 // React and Server-Side Rendering
@@ -72,23 +71,31 @@ app.use(function(req, res, next) {
 
 app.put('/account', userController.ensureAuthenticated, userController.accountPut);
 app.delete('/account', userController.ensureAuthenticated, userController.accountDelete);
+
 app.post('/signup', userController.signupPost);
 app.post('/login', userController.loginPost);
+
 app.post('/forgot', userController.forgotPost);
 app.post('/reset/:token', userController.resetPost);
+
 app.get('/unlink/:provider', userController.ensureAuthenticated, userController.unlink);
+
 app.post('/auth/facebook', userController.authFacebook);
 app.get('/auth/facebook/callback', userController.authFacebookCallback);
+
 app.post('/auth/google', userController.authGoogle);
 app.get('/auth/google/callback', userController.authGoogleCallback);
+
 app.post('/auth/twitter', userController.authTwitter);
 app.get('/auth/twitter/callback', userController.authTwitterCallback);
+
 app.post('/auth/github', userController.authGithub);
 app.get('/auth/github/callback', userController.authGithubCallback);
 
 
 app.get('/api/polls', pollController.getPolls);
 app.post('/api/polls', userController.ensureAuthenticated, pollController.createPoll);
+
 app.get('/api/poll/:poll_id', pollController.getPollVotes);
 app.post('/api/poll/:poll_id', pollController.vote);
 app.put('/api/poll/:poll_id', userController.ensureAuthenticated, pollController.updatePoll);

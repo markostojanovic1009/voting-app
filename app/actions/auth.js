@@ -2,6 +2,10 @@ import moment from 'moment';
 import cookie from 'react-cookie';
 import { browserHistory } from 'react-router';
 
+
+// Login with email and password.
+// Creates a cookie that lasts 1 hour
+// POST /login
 export function login(email, password, redirectPath) {
   return (dispatch) => {
     dispatch({
@@ -41,6 +45,10 @@ export function login(email, password, redirectPath) {
   };
 }
 
+
+// Creates a new account.
+// Automatically logs in the user.
+// POST /signup
 export function signup(name, email, password) {
   return (dispatch) => {
     dispatch({
@@ -79,6 +87,8 @@ export function logout() {
   };
 }
 
+// Sends an email for password recovery.
+// POST /forgot
 export function forgotPassword(email) {
   return (dispatch) => {
     dispatch({
@@ -108,6 +118,9 @@ export function forgotPassword(email) {
   };
 }
 
+
+// Resets user's password.
+// POST /reset/:token
 export function resetPassword(password, confirm, pathToken) {
   return (dispatch) => {
     dispatch({
@@ -141,6 +154,10 @@ export function resetPassword(password, confirm, pathToken) {
   };
 }
 
+
+// Updates profile information.
+// Password changing is handled by changePassword.
+// PUT /account
 export function updateProfile(state, token) {
   return (dispatch) => {
     dispatch({
@@ -180,6 +197,9 @@ export function updateProfile(state, token) {
   };
 }
 
+
+// Changes user's password.
+// PUT /account
 export function changePassword(password, confirm, token) {
   return (dispatch) => {
     dispatch({
@@ -215,6 +235,9 @@ export function changePassword(password, confirm, token) {
   };
 }
 
+
+// Permanently deletes user's account.
+// DELETE /account
 export function deleteAccount(token) {
   return (dispatch) => {
     dispatch({
