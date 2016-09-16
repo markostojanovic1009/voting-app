@@ -1018,7 +1018,7 @@ function createPoll(title, options, userId, token) {
                     'Content-Type': 'application/json',
                     'Authorization': 'Bearer ' + token
                 },
-                body: JSON.stringify({ title: title, options: filteredOptions, userId: userId })
+                body: JSON.stringify({ title: title, options: filteredOptions, user_id: userId })
             }).then(function (response) {
                 return response.json().then(function (json) {
                     if (response.ok) {
