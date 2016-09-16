@@ -7,9 +7,9 @@ import { browserHistory } from 'react-router';
 // Sign in with Facebook
 export function facebookLogin(redirectPath) {
   const facebook = {
-    url: 'http://localhost:3000/auth/facebook',
+    url: 'http://poll-r.herokuapp.com/auth/facebook',
     clientId: '763886170417545',
-    redirectUri: 'http://localhost:3000/auth/facebook/callback',
+    redirectUri: 'http://poll-r.herokuapp.com/auth/facebook/callback',
     authorizationUrl: 'https://www.facebook.com/v2.7/dialog/oauth',
     scope: 'email,user_location',
     width: 580,
@@ -30,8 +30,8 @@ export function facebookLogin(redirectPath) {
 // Sign in with Twitter
 export function twitterLogin(redirectPath) {
   const twitter = {
-    url: 'http://localhost:3000/auth/twitter',
-    redirectUri: 'http://localhost:3000/auth/twitter/callback',
+    url: 'http://poll-r.herokuapp.com/auth/twitter',
+    redirectUri: 'http://poll-r.herokuapp.com/auth/twitter/callback',
     authorizationUrl: 'https://api.twitter.com/oauth/authenticate',
     redirectPath
   };
@@ -50,9 +50,9 @@ export function twitterLogin(redirectPath) {
 // Sign in with Google
 export function googleLogin(redirectPath) {
   const google = {
-    url: 'http://localhost:3000/auth/google',
+    url: 'http://poll-r.herokuapp.com/auth/google',
     clientId: '907244779641-aotpjepfhsev2kn2655v58g6ugns2cer.apps.googleusercontent.com',
-    redirectUri: 'http://localhost:3000/auth/google/callback',
+    redirectUri: 'http://poll-r.herokuapp.com/auth/google/callback',
     authorizationUrl: 'https://accounts.google.com/o/oauth2/auth',
     scope: 'openid profile email',
     width: 452,
@@ -73,9 +73,9 @@ export function googleLogin(redirectPath) {
 // Sign in with Github
 export function githubLogin(redirectPath) {
   const github = {
-    url: 'http://localhost:3000/auth/github',
+    url: 'http://poll-r.herokuapp.com/auth/github',
     clientId: 'ab3e0fd83cebd3b7507d',
-    redirectUri: 'http://localhost:3000/auth/github/callback',
+    redirectUri: 'http://poll-r.herokuapp.com/auth/github/callback',
     authorizationUrl: 'https://github.com/login/oauth/authorize',
     scope: 'user:email profile repo',
     width: 452,
