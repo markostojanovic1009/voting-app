@@ -62,7 +62,7 @@ class Header extends React.Component {
           <span data-responsive-toggle="responsive-menu" data-hide-for="medium">
             <span className="menu-icon light" data-toggle></span>
           </span>
-          <IndexLink to="/">Poll-it</IndexLink>
+          <IndexLink to="/">Poll-r</IndexLink>
         </div>
         <div id="responsive-menu">
           <div className="top-bar-left">

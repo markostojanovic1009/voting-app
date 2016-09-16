@@ -12,7 +12,7 @@ class Home extends React.Component {
         <div className="row">
           <div className="small-12 welcome-header">
             <h1>
-              Welcome to Poll-it
+              Welcome to Poll-r
             </h1>
             <h3>
               Your opinion matters. Vote now.
