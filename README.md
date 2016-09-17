@@ -1,6 +1,6 @@
 # Poll-r
 
-[Poll-r](poll-r.herokuapp.com) is a new app for creating interesting polls.
+[Poll-r](http://poll-r.herokuapp.com/) is a new app for creating interesting polls.
 
 You can create new polls, or vote on existing ones.
 
