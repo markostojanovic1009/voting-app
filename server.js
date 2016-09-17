@@ -28,7 +28,6 @@ const User = require('./models/User').default;
 
 // Controllers
 const userController = require('./controllers/user');
-const contactController = require('./controllers/contact');
 const pollController = require('./controllers/poll');
 
 // React and Server-Side Rendering
