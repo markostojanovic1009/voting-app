@@ -106,12 +106,6 @@ class Profile extends React.Component {
               <input type="text" name="website" id="website" value={this.state.website} onChange={this.handleChange.bind(this)}/>
             </div>
           </div>
-          <div className="row">
-            <div className="medium-7 columns">
-              <label>Gravatar</label>
-              <img src={this.state.gravatar} className="gravatar" width="100" height="100"/>
-            </div>
-          </div>
           <button type="submit" className="green-button">Update Profile</button>
         </form>
         <form onSubmit={this.handleChangePassword.bind(this)}>
